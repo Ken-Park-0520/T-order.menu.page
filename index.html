@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ken Can Do IT</title>
+    <!-- PWA 매니페스트 동적 연결용 링크 -->
+    <link id="manifest-link" rel="manifest" href="">
+    <!-- 모바일 테마 색상 -->
+    <meta name="theme-color" content="#f8fafc">
+    <!-- Tailwind CSS (디자인용) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* 기본 배경 (PC에서 볼 때 가운데 정렬 및 배경색) */
+        body {
+            background-color: #e2e8f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+ 
+        /* 앱 컨테이너 (태블릿 가로 고정 사이즈 2400x1200) */
+        #app-container {
+            width: 2400px;
+            height: 1200px;
+            background-color: #f8fafc;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            /* 모바일 기기 느낌을 위한 둥근 테두리와 가상의 베젤 */
+            border-radius: 40px;
+            border: 12px solid #1e293b;
+            display: flex;
+            flex-direction: column;
+        }
+ 
+        /* 아이프레임이 컨테이너를 가득 채우도록 설정 */
+        #iframe-container {
+            flex: 1;
+            width: 100%;
+            display: none; /* 초기에는 숨김 */
+            background-color: #fff;
+        }
+ 
+        #content-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+ 
+        /* 스크롤바 숨기기 (앱 느낌 강조) */
+        ::-webkit-scrollbar {
+            display: none;
+        }
+        
+        /* 버튼 클릭 애니메이션 */
+        .app-btn:active {
+            transform: scale(0.95);
+        }
+    </style>
+</head>
+<body>
+ 
+    <!-- 고정 사이즈 앱 영역 -->
+    <div id="app-container">
+        
+        <!-- 상단 헤더 영역 -->
+        <header class="h-16 bg-white flex items-center justify-between px-4 border-b border-gray-200 z-10 shrink-0 relative">
+            <button id="back-btn" class="hidden text-blue-500 font-medium flex items-center px-2 py-1 bg-blue-50 rounded-lg" onclick="goBack()">
+                <!-- 뒤로가기 화살표 아이콘 -->
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+                </svg>
+                뒤로
+            </button>
+            <h1 id="app-title" class="text-lg font-bold text-gray-800 absolute left-1/2 transform -translate-x-1/2">T-order Stay Preview</h1>
+            <div class="w-16"></div> <!-- 헤더 중앙 정렬을 위한 빈 공간 -->
+        </header>
+ 
+        <!-- 메인 메뉴 (리스트 형태) 영역 -->
+        <main id="menu-container" class="flex-1 overflow-y-auto bg-gray-50 p-6">
+            <div id="button-list" class="flex flex-col w-full max-w-4xl mx-auto bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
+                <!-- JavaScript를 통해 버튼들이 여기에 동적으로 생성됩니다. -->
+            </div>
+        </main>
+ 
+        <!-- 아이프레임(외부 링크) 영역 -->
+        <div id="iframe-container">
+            <iframe id="content-iframe" src="" title="외부 콘텐츠"></iframe>
+        </div>
+ 
+    </div>
+ 
+    <script>
+        /**
+         * 1. 12개의 버튼 이름과 링크를 설정하는 배열입니다.
+         * 쉽게 수정할 수 있습니다.
+         * (주의: X-Frame-Options를 제한하는 네이버, 구글, 유튜브 등은 iframe에서 열리지 않습니다)
+         */
+        const appLinks = [
+            { name: "Gallery Lounge", url: "https://edit.istay.io/viewer/index.html?site=fbgal#/ko/store/984d8fc9-d58a-4bcf-aed8-1d803a1b32ed/3790ozmo", color: "bg-gray-100", icon: "🍰" },
+            { name: "99Valley", url: "https://edit.istay.io/viewer/index.html?site=fb99v#/ko/store/e1635994-e41a-46ca-99bd-08895789001c/7734hio1", color: "bg-blue-100", icon: "🍜" },
+            { name: "Noknamu", url: "https://edit.istay.io/viewer/index.html?site=fbnox#/ko/store/3c677ff1-c1c5-4574-8d60-048496ea1cfa/8481tevr", color: "bg-green-100", icon: "🍖" },
+            { name: "China house", url: "https://edit.istay.io/viewer/index.html?site=fbchh#/ko/store/c46b6223-3bec-4fdc-99af-c528378cda08/3295bslj", color: "bg-yellow-100", icon: "🥟" },
+            { name: "Jeju hotpot", url: "https://edit.istay.io/viewer/index.html?site=fbpot#/ko/store/1158ec0a-7ecf-4a5c-a487-1771f53f3502/483150kk", color: "bg-purple-100", icon: "🍲" },
+            { name: "Yumeyama", url: "https://edit.istay.io/viewer/index.html?site=fbyum#/ko/store/d3a3203c-c733-49e0-a395-7109edb5c528/7560zc5b", color: "bg-pink-100", icon: "🍣" },
+            { name: "The 88", url: "https://edit.istay.io/viewer/index.html?site=fbcaf#/ko/store/c11f69b7-2b3f-44d8-a767-938340977a33/1265f4rr", color: "bg-indigo-100", icon: "🍝" },
+            { name: "The 88 Terrace", url: "https://edit.istay.io/viewer/index.html?site=fbcaf#/ko/store/c88f0b25-462a-470d-a86e-52c3a2f1fac0/6704y042", color: "bg-teal-100", icon: "🍹" },
+            { name: "Lounge 38", url: "https://edit.istay.io/viewer/index.html?site=fbl38#/ko/store/2db5dc63-bd21-4244-8892-fb3eca8f5e8d/4809kmhi", color: "bg-orange-100", icon: "🍸" },
+            { name: "Blue Dragon", url: "https://edit.istay.io/viewer/index.html?site=fbbdg#/ko/store/ef3b1278-b47c-49e6-aa8b-d2ca2746c32c/86042d2h", color: "bg-red-100", icon: "🥡" },
+            { name: "Pocha", url: "https://edit.istay.io/viewer/index.html?site=fbcha#/ko/store/85ac8f34-f6af-4e1a-9561-10c277c8e7e1/5699dovg", color: "bg-cyan-100", icon: "🍻" },
+            { name: "Editor", url: "https://edit.istay.io/#/login", color: "bg-emerald-100", icon: "🔗" }
+        ];
+ 
+        // DOM 요소들
+        const buttonList = document.getElementById('button-list');
+        const menuContainer = document.getElementById('menu-container');
+        const iframeContainer = document.getElementById('iframe-container');
+        const contentIframe = document.getElementById('content-iframe');
+        const backBtn = document.getElementById('back-btn');
+        const appTitle = document.getElementById('app-title');
+ 
+        /**
+         * 2. 버튼 렌더링 함수 (리스트 형태)
+         */
+        function renderButtons() {
+            appLinks.forEach((link, index) => {
+                // 버튼 최상위 요소 생성 (한 줄 리스트 형태)
+                const btnWrapper = document.createElement('button');
+                btnWrapper.className = 'w-full flex items-center justify-between p-5 bg-white border-b border-gray-100 hover:bg-gray-50 transition-colors text-left focus:outline-none last:border-b-0';
+                btnWrapper.onclick = () => openLink(link.url, link.name);
+ 
+                // 왼쪽 영역 (아이콘 + 텍스트)
+                const leftDiv = document.createElement('div');
+                leftDiv.className = 'flex items-center';
+ 
+                // 아이콘 박스 생성
+                const iconBox = document.createElement('div');
+                iconBox.className = `w-12 h-12 ${link.color} rounded-xl flex items-center justify-center text-2xl shadow-sm mr-4 border border-gray-200 shrink-0`;
+                iconBox.innerText = link.icon;
+ 
+                // 텍스트 라벨 생성
+                const label = document.createElement('span');
+                label.className = 'text-lg font-medium text-gray-800';
+                label.innerText = link.name;
+ 
+                leftDiv.appendChild(iconBox);
+                leftDiv.appendChild(label);
+ 
+                // 오른쪽 영역 (화살표 아이콘)
+                const rightIcon = document.createElement('div');
+                rightIcon.className = 'text-gray-400';
+                rightIcon.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                `;
+ 
+                btnWrapper.appendChild(leftDiv);
+                btnWrapper.appendChild(rightIcon);
+                buttonList.appendChild(btnWrapper);
+            });
+        }
+ 
+        /**
+         * 3. 링크 열기 함수 (iframe에 연결)
+         */
+        function openLink(url, title) {
+            // iframe 주소 변경
+            contentIframe.src = url;
+            
+            // UI 변경: 메뉴 숨기고 iframe 보이기
+            menuContainer.style.display = 'none';
+            iframeContainer.style.display = 'block';
+            
+            // 헤더 변경: 뒤로가기 버튼 보이기, 제목 변경
+            backBtn.classList.remove('hidden');
+            appTitle.innerText = title;
+        }
+ 
+        /**
+         * 4. 뒤로가기 함수 (메인 메뉴로 복귀)
+         */
+        function goBack() {
+            // iframe 주소 초기화 (메모리 및 로딩 중지)
+            contentIframe.src = "";
+            
+            // UI 변경: iframe 숨기고 메뉴 보이기
+            iframeContainer.style.display = 'none';
+            menuContainer.style.display = 'block';
+            
+            // 헤더 변경: 뒤로가기 버튼 숨기기, 제목 원상복구
+            backBtn.classList.add('hidden');
+            appTitle.innerText = "화면 검증 대시보드";
+        }
+ 
+        // 앱 초기화 실행
+        renderButtons();
+ 
+        /**
+         * 5. PWA (설치형 앱) 설정
+         * PC에서 크롬/엣지로 열었을 때 주소창 우측에 '앱 설치' 버튼이 뜨게 만듭니다.
+         */
+        function setupPWA() {
+            const manifestData = {
+                name: "Tablet Mockup App",
+                short_name: "Mockup",
+                start_url: "./",
+                display: "standalone", /* 브라우저 UI 제거하고 독립 창으로 실행 */
+                background_color: "#e2e8f0",
+                theme_color: "#f8fafc",
+                icons: [
+                    {
+                        src: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzFBMjAyQyIvPjx0ZXh0IHg9IjUwIiB5PSI1NSIgZm9udC1zaXplPSI0MCIgZmlsbD0iI0ZGRiIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkw8L3RleHQ+PC9zdmc+",
+                        sizes: "192x192",
+                        type: "image/svg+xml"
+                    }
+                ]
+            };
+            
+            const manifestBlob = new Blob([JSON.stringify(manifestData)], { type: 'application/manifest+json' });
+            document.getElementById('manifest-link').href = URL.createObjectURL(manifestBlob);
+ 
+            if ('serviceWorker' in navigator) {
+                const swCode = `
+                    self.addEventListener('install', (e) => self.skipWaiting());
+                    self.addEventListener('activate', (e) => self.clients.claim());
+                    self.addEventListener('fetch', (e) => {});
+                `;
+                const swBlob = new Blob([swCode], { type: 'application/javascript' });
+                navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(() => {});
+            }
+        }
+ 
+        setupPWA();
+    </script>
+</body>
+</html>

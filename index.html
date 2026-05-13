@@ -2,175 +2,246 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>T-order Hub - Optimized Grid</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>T-order Hub - Hybrid Edition</title>
     <meta name="theme-color" content="#800020">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&family=JetBrains+Mono:wght@500&display=swap%27);
- 
-        :root {
-            --brand-color: #800020;
-        }
- 
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&family=JetBrains+Mono:wght@500&display=swap');
+
+        :root { --brand-color: #800020; }
+
         body {
             background-color: #0f172a;
             font-family: 'Noto Sans KR', sans-serif;
             margin: 0;
+            min-height: 100vh;
             display: flex;
             justify-content: center;
-            min-height: 100vh;
+            overflow-x: hidden;
         }
- 
+
         #app-shell {
             width: 100%;
-            max-width: 1800px; /* 더 넓은 화면을 수용하기 위해 최대폭 확장 */
             background-color: #f8fafc;
             display: flex;
             flex-direction: column;
             min-height: 100vh;
-            position: relative;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
         }
- 
+
+        .auto-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 640px) {
+            .auto-grid { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
+        }
+
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
- 
-        .store-img { transition: transform 0.5s ease; }
-        .store-card:hover .store-img { transform: scale(1.05); }
- 
-        #iframe-container {
+
+        #iframe-container { 
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 50;
-            display: none;
-            background-color: #fff;
-            flex-direction: column;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 100; display: none; 
+            background-color: #fff; flex-direction: column;
         }
         
-        #content-iframe { flex: 1; width: 100%; border: none; }
- 
-        .admin-glow { box-shadow: 0 0 15px rgba(231, 76, 60, 0.4); border: 2px solid #e74c3c !important; }
-        
+        #content-iframe { flex: 1; width: 100%; height: 100%; border: none; -webkit-overflow-scrolling: touch; }
+
         .status-open { background-color: #22c55e; color: white; }
         .status-break { background-color: #f59e0b; color: white; }
         .status-closed { background-color: #ef4444; color: white; }
         .status-off { background-color: #64748b; color: white; }
- 
-        .day-tab { padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer; transition: 0.2s; border: 1px solid #ddd; white-space: nowrap; }
+
+        .day-tab { padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer; border: 1px solid #ddd; white-space: nowrap; }
         .day-tab.active { background-color: var(--brand-color); color: white; border-color: var(--brand-color); }
- 
+
         #digital-clock { font-family: 'JetBrains Mono', monospace; }
         
-        @media (max-width: 640px) {
-            #clock-time { font-size: 1.25rem !important; }
-            #clock-date { font-size: 0.75rem !important; }
-            .store-card h3 { font-size: 1.1rem !important; }
+        .loading-overlay {
+            position: fixed; inset: 0;
+            background: rgba(255,255,255,0.95);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 200; opacity: 1; transition: opacity 0.4s;
         }
+        .loading-overlay.fade-out { opacity: 0; pointer-events: none; }
     </style>
 </head>
 <body>
- 
+
+<div id="loading-spinner" class="loading-overlay">
+    <div class="flex flex-col items-center gap-4">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-4 border-[#800020]"></div>
+        <p id="loading-text" class="text-sm font-bold text-gray-500">초기화 중...</p>
+    </div>
+</div>
+
 <div id="app-shell">
-    <!-- Header -->
-    <header class="sticky top-0 h-20 md:h-24 bg-white flex items-center justify-between px-4 md:px-8 border-b border-gray-200 z-30 shrink-0 shadow-sm">
-        <div class="flex items-center gap-3">
-            <h1 id="main-title" class="text-lg md:text-2xl font-extrabold text-gray-800 tracking-tight">
-                Grand Hyatt Jeju
-            </h1>
+    <header class="sticky top-0 bg-white/90 backdrop-blur-md flex items-center justify-between px-4 py-3 border-b border-gray-100 z-30 shadow-sm">
+        <div class="flex flex-col">
+            <h1 class="text-lg md:text-xl font-black text-slate-800 tracking-tight">Grand Hyatt Jeju</h1>
+            <div id="clock-date" class="text-[10px] text-slate-400 font-medium">0000.00.00 (요일)</div>
         </div>
- 
         <div id="digital-clock" class="text-right">
-            <div id="clock-date" class="text-[10px] md:text-xs font-medium text-gray-400">0000.00.00 (요일)</div>
-            <div id="clock-time" class="text-lg md:text-2xl font-bold text-gray-800 tabular-nums leading-none">00:00:00</div>
+            <div id="clock-time" class="text-xl md:text-2xl font-bold text-slate-800 tabular-nums leading-none">00:00:00</div>
         </div>
- 
-        <div class="flex items-center gap-2">
-            <button id="edit-toggle" class="hidden px-3 py-1.5 bg-slate-800 text-white text-[10px] md:text-xs font-bold rounded-lg hover:bg-slate-700" onclick="toggleEditMode()">🛠️ 수정</button>
-            <button id="admin-lock-btn" class="p-2 md:p-2.5 bg-gray-100 text-gray-400 rounded-lg hover:bg-gray-200 transition-all" onclick="unlockAdmin()">
+        <div class="flex items-center gap-1.5">
+            <button id="edit-toggle" class="hidden px-2.5 py-1.5 bg-slate-800 text-white text-[10px] font-bold rounded-lg shadow-sm" onclick="window.toggleEditMode()">🛠️ 수정</button>
+            <button id="admin-lock-btn" class="p-2 bg-slate-50 text-slate-400 rounded-lg border border-slate-100" onclick="window.unlockAdmin()">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
             </button>
         </div>
     </header>
- 
-    <!-- Main Content: 반응형 그리드 설정 -->
-    <main id="menu-screen" class="flex-1 overflow-y-auto bg-slate-100 p-3 md:p-6 hide-scrollbar">
-        <div id="store-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-5 max-w-full mx-auto">
-            <!-- Stores dynamically rendered here -->
-        </div>
+
+    <main id="menu-screen" class="flex-1 overflow-y-auto p-4 md:p-8 hide-scrollbar">
+        <div id="store-grid" class="auto-grid max-w-7xl mx-auto"></div>
     </main>
- 
-    <!-- Iframe Viewer Overlay -->
+
     <div id="iframe-container">
         <div class="h-14 bg-white border-b flex items-center justify-between px-4 shrink-0 shadow-sm">
-            <button class="flex items-center gap-2 px-3 py-1.5 bg-[#800020] text-white rounded-lg font-bold text-sm" onclick="goBack()">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
-                </svg>
-                뒤로가기
+            <button class="flex items-center gap-1.5 px-3 py-2 bg-slate-800 text-white rounded-xl font-bold text-xs" onclick="window.goBack()">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" /></svg>
+                뒤로
             </button>
-            <span id="viewer-title" class="font-bold text-gray-700 truncate text-sm">Menu</span>
-            <div class="w-20"></div>
+            <span id="viewer-title" class="font-bold text-slate-700 truncate max-w-[150px] text-sm text-center flex-1 mx-2">Menu</span>
+            <button class="p-2 bg-[#800020] text-white rounded-xl font-bold text-xs" onclick="window.open(window.currentOpenUrl, '_blank')">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+            </button>
         </div>
-        <iframe id="content-iframe" src=""></iframe>
+        <iframe id="content-iframe" src="" allow="fullscreen"></iframe>
     </div>
 </div>
- 
-<!-- Admin Password Modal -->
-<div id="pwd-modal" class="hidden fixed inset-0 bg-black/70 z-[100] flex items-center justify-center p-4">
-    <div class="bg-white p-6 md:p-8 rounded-2xl shadow-2xl text-center w-full max-w-xs">
-        <h3 class="text-xl font-bold mb-4 text-gray-800">관리자 인증</h3>
-        <input type="password" id="admin-pwd" class="w-full p-3 border-2 border-gray-100 rounded-xl text-xl text-center outline-none focus:border-[#800020] bg-gray-50 mb-4" placeholder="PIN 번호">
+
+<div id="pwd-modal" class="hidden fixed inset-0 bg-black/80 z-[110] flex items-center justify-center p-6">
+    <div class="bg-white p-8 rounded-3xl shadow-2xl text-center w-full max-w-xs border border-slate-200">
+        <h3 class="text-xl font-bold mb-6 text-slate-800">관리자 인증</h3>
+        <input type="password" id="admin-pwd" class="w-full p-4 border-2 border-slate-100 rounded-2xl text-2xl text-center outline-none focus:border-[#800020] bg-slate-50 mb-6" placeholder="PIN" inputmode="numeric">
         <div class="flex gap-2">
-            <button class="flex-1 py-3 bg-gray-200 rounded-xl font-bold text-gray-600 text-sm" onclick="closePwdModal()">취소</button>
-            <button class="flex-1 py-3 bg-[#800020] text-white rounded-xl font-bold text-sm" onclick="verifyAdmin()">확인</button>
+            <button class="flex-1 py-3 bg-slate-100 rounded-xl font-bold text-slate-500" onclick="window.closePwdModal()">취소</button>
+            <button class="flex-1 py-3 bg-[#800020] text-white rounded-xl font-bold" onclick="window.verifyAdmin()">확인</button>
         </div>
     </div>
 </div>
- 
-<script>
-    const ADMIN_PASSWORD = '1234';
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    // ---------------------------------------------------------
+    // 시스템 변수 체크 및 초기화
+    // ---------------------------------------------------------
+    let firebaseConfig = null;
+    try {
+        if (typeof __firebase_config !== 'undefined') {
+            firebaseConfig = JSON.parse(__firebase_config);
+        }
+    } catch (e) { console.warn("Firebase config not available."); }
+
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'demo-mode';
     const weekDays = ['일', '월', '화', '수', '목', '금', '토'];
- 
+    const ADMIN_PASSWORD = '1234';
+
+    window.stores = [];
+    window.isEditMode = false;
+    window.isAdmin = false;
+    window.currentOpenUrl = "";
+    window.editingDay = new Date().getDay();
+
     const createWeeklyTemplate = () => {
-        let template = {};
-        weekDays.forEach((_, i) => {
-            template[i] = {
-                isOff: false,
-                sessions: [
-                    { label: "1차", open: "09:00", close: "14:00" },
-                    { label: "2차", open: "17:00", close: "21:00" },
-                    { label: "3차", open: "00:00", close: "00:00" }
-                ]
-            };
-        });
-        return template;
+        let t = {}; 
+        weekDays.forEach((_, i) => t[i] = { isOff: false, sessions: [{ label: "1차", open: "09:00", close: "14:00" }, { label: "2차", open: "17:00", close: "21:00" }, { label: "3차", open: "00:00", close: "00:00" }] }); 
+        return t;
     };
- 
+
     const defaultStores = [
-        { id: 1, name: "Gallery Lounge", url: "https://edit.istay.io/viewer/index.html?site=fbgal#/ko/store/984d8fc9-d58a-4bcf-aed8-1d803a1b32ed/3790ozmo%22, img: "https://i.postimg.cc/TwbM4V0Y/launji-38.jpg", weekly: createWeeklyTemplate() },
-        { id: 2, name: "99Valley", url: "https://edit.istay.io/viewer/index.html?site=fb99v#/ko/store/e1635994-e41a-46ca-99bd-08895789001c/7734hio1%22, img: "https://i.postimg.cc/q7c4BfWJ/99-Valley.jpg", weekly: createWeeklyTemplate() },
-        { id: 3, name: "Noknamu", url: "https://edit.istay.io/viewer/index.html?site=fbnox#/ko/store/3c677ff1-c1c5-4574-8d60-048496ea1cfa/8481tevr%22, img: "https://i.postimg.cc/XJXHHdfg/nognamu.jpg", weekly: createWeeklyTemplate() },
-        { id: 4, name: "China House", url: "https://edit.istay.io/viewer/index.html?site=fbchh#/ko/store/c46b6223-3bec-4fdc-99af-c528378cda08/3295bslj%22, img: "https://i.postimg.cc/263cchQt/chaina-hauseu.jpg", weekly: createWeeklyTemplate() },
-        { id: 5, name: "Jeju Hotpot", url: "https://edit.istay.io/viewer/index.html?site=fbpot#/ko/store/1158ec0a-7ecf-4a5c-a487-1771f53f3502/483150kk%22, img: "https://i.postimg.cc/B6tYYHTd/haspas.jpg", weekly: createWeeklyTemplate() },
-        { id: 6, name: "Yumeyama", url: "https://edit.istay.io/viewer/index.html?site=fbyum#/ko/store/d3a3203c-c733-49e0-a395-7109edb5c528/7560zc5b%22, img: "https://i.postimg.cc/76bss03W/yumeyama.jpg", weekly: createWeeklyTemplate() },
-        { id: 7, name: "The 88", url: "https://edit.istay.io/viewer/index.html?site=fbcaf#/ko/store/c11f69b7-2b3f-44d8-a767-938340977a33/1265f4rr%22, img: "https://i.postimg.cc/LsxQ3N1y/deo-88.jpg", weekly: createWeeklyTemplate() },
-        { id: 8, name: "The 88 Terrace", url: "https://edit.istay.io/viewer/index.html?site=fbcaf#/ko/store/c88f0b25-462a-470d-a86e-52c3a2f1fac0/6704y042%22, img: "https://i.postimg.cc/k5TYvfbf/deo-88-telaseu.jpg", weekly: createWeeklyTemplate() },
-        { id: 9, name: "Lounge 38", url: "https://edit.istay.io/viewer/index.html?site=fbl38#/ko/store/2db5dc63-bd21-4244-8892-fb3eca8f5e8d/4809kmhi%22, img: "https://i.postimg.cc/TwbM4V0Y/launji-38.jpg", weekly: createWeeklyTemplate() },
-        { id: 10, name: "Blue Dragon", url: "https://edit.istay.io/viewer/index.html?site=fbbdg#/ko/store/ef3b1278-b47c-49e6-aa8b-d2ca2746c32c/86042d2h%22, img: "https://i.postimg.cc/9Mz88Zd8/beulludeulaegon.jpg", weekly: createWeeklyTemplate() },
-        { id: 11, name: "Pocha", url: "https://edit.istay.io/viewer/index.html?site=fbcha#/ko/store/85ac8f34-f6af-4e1a-9561-10c277c8e7e1/5699dovg%22, img: "https://i.postimg.cc/vBDqqfrj/pocha.jpg", weekly: createWeeklyTemplate() },
+        { id: 1, name: "Gallery Lounge", url: "https://edit.istay.io/viewer/index.html?site=fbgal#/ko/store/984d8fc9-d58a-4bcf-aed8-1d803a1b32ed/3790ozmo", img: "https://i.postimg.cc/TwbM4V0Y/launji-38.jpg", weekly: createWeeklyTemplate() },
+        { id: 2, name: "99Valley", url: "https://edit.istay.io/viewer/index.html?site=fb99v#/ko/store/e1635994-e41a-46ca-99bd-08895789001c/7734hio1", img: "https://i.postimg.cc/q7c4BfWJ/99-Valley.jpg", weekly: createWeeklyTemplate() },
+        { id: 3, name: "Noknamu", url: "https://edit.istay.io/viewer/index.html?site=fbnox#/ko/store/3c677ff1-c1c5-4574-8d60-048496ea1cfa/8481tevr", img: "https://i.postimg.cc/XJXHHdfg/nognamu.jpg", weekly: createWeeklyTemplate() },
+        { id: 4, name: "China House", url: "https://edit.istay.io/viewer/index.html?site=fbchh#/ko/store/c46b6223-3bec-4fdc-99af-c528378cda08/3295bslj", img: "https://i.postimg.cc/263cchQt/chaina-hauseu.jpg", weekly: createWeeklyTemplate() },
+        { id: 5, name: "Jeju Hotpot", url: "https://edit.istay.io/viewer/index.html?site=fbpot#/ko/store/1158ec0a-7ecf-4a5c-a487-1771f53f3502/483150kk", img: "https://i.postimg.cc/B6tYYHTd/haspas.jpg", weekly: createWeeklyTemplate() },
+        { id: 6, name: "Yumeyama", url: "https://edit.istay.io/viewer/index.html?site=fbyum#/ko/store/d3a3203c-c733-49e0-a395-7109edb5c528/7560zc5b", img: "https://i.postimg.cc/76bss03W/yumeyama.jpg", weekly: createWeeklyTemplate() },
+        { id: 7, name: "The 88", url: "https://edit.istay.io/viewer/index.html?site=fbcaf#/ko/store/c11f69b7-2b3f-44d8-a767-938340977a33/1265f4rr", img: "https://i.postimg.cc/LsxQ3N1y/deo-88.jpg", weekly: createWeeklyTemplate() },
+        { id: 8, name: "The 88 Terrace", url: "https://edit.istay.io/viewer/index.html?site=fbcaf#/ko/store/c88f0b25-462a-470d-a86e-52c3a2f1fac0/6704y042", img: "https://i.postimg.cc/k5TYvfbf/deo-88-telaseu.jpg", weekly: createWeeklyTemplate() },
+        { id: 9, name: "Lounge 38", url: "https://edit.istay.io/viewer/index.html?site=fbl38#/ko/store/2db5dc63-bd21-4244-8892-fb3eca8f5e8d/4809kmhi", img: "https://i.postimg.cc/TwbM4V0Y/launji-38.jpg", weekly: createWeeklyTemplate() },
+        { id: 10, name: "Blue Dragon", url: "https://edit.istay.io/viewer/index.html?site=fbbdg#/ko/store/ef3b1278-b47c-49e6-aa8b-d2ca2746c32c/86042d2h", img: "https://i.postimg.cc/9Mz88Zd8/beulludeulaegon.jpg", weekly: createWeeklyTemplate() },
+        { id: 11, name: "Pocha", url: "https://edit.istay.io/viewer/index.html?site=fbcha#/ko/store/85ac8f34-f6af-4e1a-9561-10c277c8e7e1/5699dovg", img: "https://i.postimg.cc/vBDqqfrj/pocha.jpg", weekly: createWeeklyTemplate() },
         { id: 12, name: "Grand Kitchen", url: "https://www.jejudreamtower.com/upload/file/fileresource/966/17477.pdf", img: "https://i.postimg.cc/MG93mdQt/geulaendeu-kichin.jpg", weekly: createWeeklyTemplate() },
-        { id: 13, name: "Deli", url: "https://www.jejudreamtower.com/upload/file/fileresource/960/17524.pdf", img: "https://i.postimg.cc/Kz4qqBPD/delli.jpg", weekly: createWeeklyTemplate() }
+        { id: 13, name: "Deli", url: "https://www.jejudreamtower.com/upload/file/fileresource/959/17523.pdf", img: "https://i.postimg.cc/Kz4qqBPD/delli.jpg", weekly: createWeeklyTemplate() }
     ];
- 
-    let stores = [];
-    let isAdmin = false;
-    let isEditMode = false;
-    let editingDay = new Date().getDay();
- 
+
+    // ---------------------------------------------------------
+    // 초기화 로직 (오프라인 테스트 가능하게 수정)
+    // ---------------------------------------------------------
+    async function init() {
+        startClock();
+        
+        // 1. 즉시 화면에 기본 데이터 렌더링 (로딩창이 가로막더라도 뒷단에 준비됨)
+        window.stores = [...defaultStores];
+        render();
+
+        // 2. 파이어베이스 설정이 없으면 즉시 로딩 해제 (오프라인 모드)
+        if (!firebaseConfig) {
+            console.log("Running in LOCAL mode (No Firebase Config).");
+            setTimeout(hideSpinner, 500);
+            return;
+        }
+
+        // 3. 파이어베이스 설정이 있으면 연동 시작
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        try {
+            document.getElementById('loading-text').innerText = "보안 인증 중...";
+            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                await signInWithCustomToken(auth, __initial_auth_token);
+            } else {
+                await signInAnonymously(auth);
+            }
+        } catch (e) {
+            console.error("Auth failed, continuing in offline mode.");
+            hideSpinner();
+        }
+
+        onAuthStateChanged(auth, (user) => {
+            if (!user) return;
+            document.getElementById('loading-text').innerText = "데이터 동기화 중...";
+
+            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'storeConfigs', 'main');
+            onSnapshot(docRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    window.stores = docSnap.data().stores;
+                } else {
+                    setDoc(docRef, { stores: defaultStores });
+                }
+                render();
+                hideSpinner();
+            }, (err) => {
+                console.error("Firestore sync error, fallback to default.");
+                hideSpinner();
+            });
+        });
+
+        // 글로벌 저장을 위한 db/auth 노출 (익명 함수로 감쌈)
+        window.saveToCloud = async () => {
+            if (!auth.currentUser) return;
+            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'storeConfigs', 'main');
+            await setDoc(docRef, { stores: window.stores });
+        };
+    }
+
+    function hideSpinner() {
+        const spinner = document.getElementById('loading-spinner');
+        if (spinner) spinner.classList.add('fade-out');
+    }
+
+    // ---------------------------------------------------------
+    // 렌더링 및 기능 로직
+    // ---------------------------------------------------------
     function startClock() {
         const dateEl = document.getElementById('clock-date');
         const timeEl = document.getElementById('clock-time');
@@ -178,161 +249,140 @@
             const now = new Date();
             dateEl.innerText = `${now.getFullYear()}. ${String(now.getMonth() + 1).padStart(2, '0')}. ${String(now.getDate()).padStart(2, '0')}. (${weekDays[now.getDay()]})`;
             timeEl.innerText = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
-            if (now.getSeconds() === 0) render();
+            if (now.getSeconds() === 0) render(); 
         }, 1000);
     }
- 
+
     function timeToMin(timeStr) {
         if(!timeStr || !timeStr.includes(':')) return 0;
         const [h, m] = timeStr.split(':').map(Number);
         return h * 60 + m;
     }
- 
+
     function getBusinessStatus(store) {
         const now = new Date();
-        const curDay = now.getDay();
         const curMin = now.getHours() * 60 + now.getMinutes();
-        const sched = store.weekly[curDay];
- 
-        if (sched.isOff) return { label: "정기 휴무", class: "status-off", next: "내일 확인" };
- 
-        const sessions = sched.sessions
-            .filter(s => s.open !== s.close)
-            .sort((a, b) => timeToMin(a.open) - timeToMin(b.open));
- 
+        const sched = store.weekly[now.getDay()];
+        if (!sched || sched.isOff) return { label: "정기 휴무", class: "status-off", next: "내일 확인" };
+        
+        const sessions = (sched.sessions || []).filter(s => s.open !== s.close).sort((a, b) => timeToMin(a.open) - timeToMin(b.open));
         if (sessions.length === 0) return { label: "영업 종료", class: "status-closed", next: "정보 없음" };
- 
+
         for (let i = 0; i < sessions.length; i++) {
-            const open = timeToMin(sessions[i].open);
+            let open = timeToMin(sessions[i].open);
             let close = timeToMin(sessions[i].close);
-            if (close <= open) close += 1440;
-            if (curMin >= open && curMin < close) {
-                return { label: "영업 중", class: "status-open", next: `${sessions[i].label} 마감: ${sessions[i].close}` };
-            }
+            if (close <= open) close += 1440; 
+            if (curMin >= open && curMin < close) return { label: "영업 중", class: "status-open", next: `${sessions[i].label} 마감: ${sessions[i].close}` };
         }
- 
-        for (let i = 0; i < sessions.length - 1; i++) {
-            const prevClose = timeToMin(sessions[i].close);
-            const nextOpen = timeToMin(sessions[i+1].open);
-            if (curMin >= prevClose && curMin < nextOpen) {
-                return { label: "브레이크", class: "status-break", next: `${sessions[i+1].label} 오픈: ${sessions[i+1].open}` };
-            }
-        }
- 
-        const firstOpen = timeToMin(sessions[0].open);
-        if (curMin < firstOpen) {
-            return { label: "준비중", class: "status-closed", next: `${sessions[0].label} 오픈: ${sessions[0].open}` };
-        } else {
-            return { label: "영업 종료", class: "status-closed", next: "영업 종료" };
-        }
+        return { label: "영업 종료", class: "status-closed", next: "영업 종료" };
     }
- 
-    function init() {
-        const localData = localStorage.getItem('torder_weekly_sessions_v5');
-        stores = localData ? JSON.parse(localData) : defaultStores;
-        render();
-        startClock();
-    }
- 
+
     function render() {
         const grid = document.getElementById('store-grid');
+        if (!grid) return;
         grid.innerHTML = '';
         const nowDay = new Date().getDay();
- 
-        stores.forEach((store, sIdx) => {
+
+        window.stores.forEach((store, sIdx) => {
             const status = getBusinessStatus(store);
-            const cardDay = isEditMode ? editingDay : nowDay;
+            const cardDay = window.isEditMode ? window.editingDay : nowDay;
             const sched = store.weekly[cardDay];
             const isPdf = store.url.toLowerCase().endsWith('.pdf') || store.url.includes('drive.google.com');
- 
+
             const card = document.createElement('div');
-            card.className = `store-card bg-white rounded-2xl md:rounded-3xl shadow-sm overflow-hidden flex flex-col border border-gray-100 transition-all ${isEditMode ? 'admin-glow' : ''}`;
-            
+            card.className = `store-card bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden flex flex-col ${window.isEditMode ? 'ring-2 ring-[#800020]' : ''}`;
             card.innerHTML = `
-                <div class="h-32 sm:h-44 md:h-52 overflow-hidden relative cursor-pointer" onclick="!isEditMode && openLink('${store.url}', '${store.name}')">
-                    <img src="${store.img}" class="store-img w-full h-full object-cover">
-                    <div class="absolute inset-0 bg-black/10"></div>
-                    <div class="absolute top-2 left-2 px-2 py-0.5 rounded-full text-[10px] font-bold shadow ${status.class}">${status.label}</div>
-                    ${isPdf ? `<div class="absolute top-2 right-2 px-1.5 py-0.5 bg-red-600 text-white rounded font-bold text-[9px]">PDF</div>` : ''}
+                <div class="aspect-video relative cursor-pointer overflow-hidden" onclick="!window.isEditMode && window.openLink('${store.url}', '${store.name}')">
+                    <img src="${store.img}" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-black/5"></div>
+                    <div class="absolute top-2 left-2 px-2 py-0.5 rounded-full text-[9px] font-bold shadow-sm ${status.class}">${status.label}</div>
+                    ${isPdf ? `<div class="absolute top-2 right-2 px-1.5 py-0.5 bg-red-600 text-white rounded font-bold text-[8px] shadow-sm">PDF</div>` : ''}
                 </div>
-                <div class="p-3 md:p-5 flex flex-col gap-2">
-                    <h3 class="text-sm md:text-xl font-bold text-gray-800 truncate leading-tight">${store.name}</h3>
-                    
-                    <div style="display:${isEditMode ? 'none' : 'block'}">
+                <div class="p-4 flex flex-col gap-1">
+                    <h3 class="text-sm md:text-base font-bold text-slate-800 truncate leading-tight">${store.name}</h3>
+                    <div style="display:${window.isEditMode ? 'none' : 'block'}">
                         <div class="flex flex-wrap gap-1 mb-1">
-                            ${sched.isOff ? '<span class="text-red-500 font-bold text-[10px]">정기 휴무</span>' :
-                                sched.sessions.filter(s => s.open !== s.close).map(s =>
-                                    `<span class="px-1.5 py-0.5 bg-gray-50 rounded text-[9px] text-gray-400 font-bold">${s.open}-${s.close}</span>`
+                            ${sched.isOff ? '<span class="text-red-500 font-bold text-[10px]">정기 휴무</span>' : 
+                                (sched.sessions || []).filter(s => s.open !== s.close).map(s => 
+                                    `<span class="px-1.5 py-0.5 bg-gray-50 rounded text-[9px] text-gray-400 font-bold">${s.label}: ${s.open}-${s.close}</span>`
                                 ).join('')
                             }
                         </div>
-                        <p class="text-[11px] md:text-sm font-bold text-slate-500 truncate">${status.next}</p>
+                        <p class="text-[11px] font-bold text-slate-500 truncate">${status.next}</p>
                     </div>
- 
-                    <!-- Edit Panel (Reduced size for grid) -->
-                    <div style="display:${isEditMode ? 'block' : 'none'}" class="text-[10px]">
-                        <div class="flex overflow-x-auto gap-1 mb-2 pb-1 hide-scrollbar">
-                            ${weekDays.map((d, i) => `<div class="day-tab ${editingDay == i ? 'active' : ''}" onclick="changeEditDay(${i})">${d}</div>`).join('')}
+                    <div style="display:${window.isEditMode ? 'block' : 'none'}" class="space-y-3 mt-1">
+                        <div class="flex overflow-x-auto gap-1 pb-1 hide-scrollbar">
+                            ${weekDays.map((d, i) => `<div class="day-tab ${window.editingDay == i ? 'active' : ''}" onclick="window.changeDay(${i});event.stopPropagation();">${d}</div>`).join('')}
                         </div>
-                        <div class="space-y-2 p-2 bg-slate-50 rounded-lg border border-slate-200">
-                            <label class="flex items-center gap-1 cursor-pointer">
-                                <input type="checkbox" ${sched.isOff ? 'checked' : ''} onchange="updateWeekly(${sIdx}, ${editingDay}, 'isOff', this.checked)">
-                                <span class="font-bold text-red-500">휴무</span>
+                        <div class="space-y-2 p-2 bg-slate-50 rounded-xl border border-slate-200">
+                            <label class="flex items-center gap-1 cursor-pointer" onclick="event.stopPropagation()">
+                                <input type="checkbox" onchange="window.updateWeekly(${sIdx}, ${window.editingDay}, 'isOff', this.checked)" ${sched.isOff ? 'checked' : ''}>
+                                <span class="text-[10px] font-bold text-red-500">휴무</span>
                             </label>
-                            ${sched.sessions.map((sess, sessIdx) => `
-                                <div class="${sched.isOff ? 'opacity-30 pointer-events-none' : ''} grid grid-cols-2 gap-1 border-b border-gray-100 pb-1">
-                                    <input type="text" class="p-0.5 border rounded text-[9px] font-bold" value="${sess.open}" onchange="updateSession(${sIdx}, ${editingDay}, ${sessIdx}, 'open', this.value)">
-                                    <input type="text" class="p-0.5 border rounded text-[9px] font-bold" value="${sess.close}" onchange="updateSession(${sIdx}, ${editingDay}, ${sessIdx}, 'close', this.value)">
-                                </div>
-                            `).join('')}
+                            <div class="${sched.isOff ? 'opacity-30 pointer-events-none' : ''}">
+                                ${(sched.sessions || []).map((sess, sessIdx) => `
+                                    <div class="grid grid-cols-3 gap-1 pb-1.5 border-b border-slate-100 last:border-0" onclick="event.stopPropagation()">
+                                        <input type="text" class="p-1 border rounded text-[9px]" value="${sess.label}" onchange="window.updateSession(${sIdx}, ${window.editingDay}, ${sessIdx}, 'label', this.value)">
+                                        <input type="text" class="p-1 border rounded text-[9px]" value="${sess.open}" onchange="window.updateSession(${sIdx}, ${window.editingDay}, ${sessIdx}, 'open', this.value)">
+                                        <input type="text" class="p-1 border rounded text-[9px]" value="${sess.close}" onchange="window.updateSession(${sIdx}, ${window.editingDay}, ${sessIdx}, 'close', this.value)">
+                                    </div>
+                                `).join('')}
+                            </div>
                         </div>
+                        <input type="text" class="w-full p-1.5 border rounded-lg text-[9px]" value="${store.url}" onchange="window.updateStoreField(${sIdx}, 'url', this.value)" placeholder="링크" onclick="event.stopPropagation()">
+                        <input type="text" class="w-full p-1.5 border rounded-lg text-[9px]" value="${store.img}" onchange="window.updateStoreField(${sIdx}, 'img', this.value)" placeholder="이미지" onclick="event.stopPropagation()">
                     </div>
                 </div>
             `;
             grid.appendChild(card);
         });
     }
- 
-    function changeEditDay(day) { editingDay = day; render(); }
-    function updateWeekly(sIdx, day, field, value) { stores[sIdx].weekly[day][field] = value; localStorage.setItem('torder_weekly_sessions_v5', JSON.stringify(stores)); render(); }
-    function updateSession(sIdx, day, sessIdx, field, value) { stores[sIdx].weekly[day].sessions[sessIdx][field] = value; localStorage.setItem('torder_weekly_sessions_v5', JSON.stringify(stores)); render(); }
-    function updateStoreField(sIdx, field, value) { stores[sIdx][field] = value; localStorage.setItem('torder_weekly_sessions_v5', JSON.stringify(stores)); render(); }
- 
-    function unlockAdmin() {
-        if (isAdmin) { isAdmin = false; isEditMode = false; document.getElementById('edit-toggle').classList.add('hidden'); document.getElementById('admin-lock-btn').classList.remove('bg-[#800020]', 'text-white'); render(); }
+
+    // ---------------------------------------------------------
+    // 전역 핸들러
+    // ---------------------------------------------------------
+    window.changeDay = (day) => { window.editingDay = day; render(); };
+    window.updateWeekly = (sIdx, day, field, value) => { window.stores[sIdx].weekly[day][field] = value; if(window.saveToCloud) window.saveToCloud(); };
+    window.updateSession = (sIdx, day, sessIdx, field, value) => { window.stores[sIdx].weekly[day].sessions[sessIdx][field] = value; if(window.saveToCloud) window.saveToCloud(); };
+    window.updateStoreField = (sIdx, field, value) => { window.stores[sIdx][field] = value; if(window.saveToCloud) window.saveToCloud(); };
+
+    window.unlockAdmin = () => {
+        if (window.isAdmin) { window.isAdmin=false; window.isEditMode=false; document.getElementById('edit-toggle').classList.add('hidden'); render(); }
         else { document.getElementById('pwd-modal').classList.remove('hidden'); document.getElementById('admin-pwd').focus(); }
-    }
- 
-    function verifyAdmin() {
-        if (document.getElementById('admin-pwd').value === ADMIN_PASSWORD) { isAdmin = true; document.getElementById('edit-toggle').classList.remove('hidden'); document.getElementById('admin-lock-btn').classList.add('bg-[#800020]', 'text-white'); closePwdModal(); render(); }
-        else { alert("PIN 번호가 올바르지 않습니다."); }
-    }
- 
-    function closePwdModal() { document.getElementById('pwd-modal').classList.add('hidden'); document.getElementById('admin-pwd').value = ''; }
-    function toggleEditMode() { isEditMode = !isEditMode; document.getElementById('edit-toggle').innerText = isEditMode ? "✅ Save" : "🛠️ Edit"; render(); }
- 
-    function openLink(url, title) {
+    };
+
+    window.verifyAdmin = () => {
+        if (document.getElementById('admin-pwd').value === ADMIN_PASSWORD) { window.isAdmin=true; document.getElementById('edit-toggle').classList.remove('hidden'); window.closePwdModal(); render(); }
+        else alert("틀렸습니다.");
+    };
+
+    window.closePwdModal = () => { document.getElementById('pwd-modal').classList.add('hidden'); document.getElementById('admin-pwd').value = ''; };
+    window.toggleEditMode = () => { window.isEditMode=!window.isEditMode; render(); };
+
+    window.openLink = (url, title) => {
+        window.currentOpenUrl = url;
         let targetUrl = url;
         if (url.includes('drive.google.com')) {
             const fileId = url.split('/d/')[1]?.split('/')[0] || url.split('id=')[1]?.split('&')[0];
             if (fileId) targetUrl = `https://docs.google.com/viewer?url=https://drive.google.com/uc?id=${fileId}&embedded=true`;
         }
+        const isPdf = url.toLowerCase().endsWith('.pdf') || url.includes('drive.google.com');
+        if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent) && isPdf) { window.location.href = targetUrl; return; }
+        
         document.getElementById('iframe-container').style.display = 'flex';
         document.getElementById('content-iframe').src = targetUrl;
         document.getElementById('viewer-title').innerText = title;
         document.body.style.overflow = 'hidden';
-    }
- 
-    function goBack() {
-        document.getElementById('content-iframe').src = '';
-        document.getElementById('iframe-container').style.display = 'none';
-        document.body.style.overflow = 'auto';
-        render();
-    }
- 
-    window.onload = init;
+    };
+
+    window.goBack = () => { 
+        document.getElementById('content-iframe').src = ''; 
+        document.getElementById('iframe-container').style.display = 'none'; 
+        document.body.style.overflow = 'auto'; 
+    };
+
+    init();
 </script>
- 
+
 </body>
 </html>
- 

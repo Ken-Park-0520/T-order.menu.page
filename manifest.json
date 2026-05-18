@@ -1,0 +1,17 @@
+{
+  "name": "Grand Hyatt Jeju F&B",
+  "short_name": "Grand Hyatt Jeju F&B",
+  "description": "Grand Hyatt Jeju F&B Menu Hub",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#800020",
+  "icons": [
+    {
+      "src": "./CJUGH_L006c-stk-TM-color-bg-RGB.png",
+      "sizes": "192x192 512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Grand Hyatt T-order Hub</title>
+    <title>Grand Hyatt Jeju F&B</title>
     <meta name="theme-color" content="#800020">
     
-    <!-- PWA 앱 아이콘 설정 (웹 호스팅 경로에 맞춰 이미지를 업로드하세요) -->
-    <link rel="apple-touch-icon" href="/icon-192x192.png">
-    <link rel="manifest" href="/manifest.json">
+    <!-- PWA 앱 아이콘 설정 (업로드하신 그랜드 하얏트 로고 적용) -->
+    <link rel="apple-touch-icon" href="./CJUGH_L006c-stk-TM-color-bg-RGB.png">
+    <link rel="manifest" href="./manifest.json">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -51,10 +51,11 @@
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             z-index: 100; display: none; 
-            background-color: #fff; flex-direction: column;
+            background-color: #fff;
+            flex-direction: column;
         }
         
-        #content-iframe { flex: 1; width: 100%; height: 100%; border: none; -webkit-overflow-scrolling: touch; }
+        #content-iframe { width: 100%; height: 100%; flex: 1; border: none; -webkit-overflow-scrolling: touch; }
 
         .status-open { background-color: #22c55e; color: white; }
         .status-break { background-color: #f59e0b; color: white; }
@@ -80,29 +81,30 @@
 <div id="loading-spinner" class="loading-overlay">
     <div class="flex flex-col items-center gap-4 text-center">
         <div class="animate-spin rounded-full h-12 w-12 border-b-4 border-[#800020] mx-auto"></div>
-        <p id="loading-text" class="text-sm font-bold text-gray-500">초기화 중...</p>
+        <p id="loading-text" class="text-sm font-bold text-gray-500">데이터 동기화 중...</p>
     </div>
 </div>
 
 <div id="app-shell">
     <header class="sticky top-0 bg-white/90 backdrop-blur-md flex items-center justify-between px-4 py-3 border-b border-gray-100 z-30 shadow-sm relative">
-        <!-- 왼쪽: 로고 이미지 -->
         <div class="flex items-center w-1/3">
-            <img src="https://i.postimg.cc/05bh80xp/GH.png" alt="Grand Hyatt Logo" class="h-8 md:h-12 w-auto object-contain">
+            <img src="https://i.postimg.cc/05bh80xp/GH.png" alt="Grand Hyatt Logo" class="h-8 md:h-12 w-auto object-contain cursor-pointer" onclick="window.unlockAdmin()" title="Admin Login">
         </div>
         
-        <!-- 중앙: 시계 -->
         <div id="digital-clock" class="absolute left-1/2 -translate-x-1/2 text-center w-1/3">
             <div id="clock-time" class="text-xl md:text-2xl font-black text-slate-800 tabular-nums leading-none tracking-tight">00:00:00</div>
         </div>
         
-        <!-- 오른쪽: 설정 버튼 & 날짜/요일 -->
         <div class="flex flex-col items-end justify-center w-1/3 gap-1">
             <div class="flex items-center justify-end gap-1.5">
-                <button id="edit-toggle" class="hidden px-2.5 py-1 bg-slate-800 text-white text-[10px] font-bold rounded-lg shadow-sm" onclick="window.toggleEditMode()">🛠️ 수정</button>
-                <button id="admin-lock-btn" class="p-1.5 bg-slate-50 text-slate-400 rounded-lg border border-slate-100" onclick="window.unlockAdmin()" title="설정 변경">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
-                </button>
+                <select id="lang-select" onchange="window.changeLang(this.value)" class="p-1 border border-slate-200 rounded-lg text-[10px] font-bold bg-white text-slate-600 outline-none cursor-pointer shadow-sm">
+                    <option value="ko">한국어</option>
+                    <option value="en">English</option>
+                    <option value="zh-TW">繁體中文</option>
+                    <option value="zh-CN">简体中文</option>
+                    <option value="ja">日本語</option>
+                </select>
+                <button id="edit-toggle" class="hidden px-2.5 py-1 bg-slate-800 text-white text-[10px] font-bold rounded-lg shadow-sm whitespace-nowrap" onclick="window.toggleEditMode()">🛠️ 수정</button>
             </div>
             <div id="clock-date" class="text-[9px] md:text-[10px] font-medium text-right leading-none whitespace-nowrap">0000.00.00 <span class="text-slate-400">(요일)</span></div>
         </div>
@@ -113,19 +115,30 @@
     </main>
 
     <div id="iframe-container">
-        <!-- 뷰어 상단 바 -->
-        <div id="viewer-header" class="h-14 bg-white border-b flex items-center justify-between px-4 shrink-0 shadow-sm transition-colors">
+        <div id="viewer-header" class="top-0 left-0 w-full h-14 bg-white border-b flex items-center justify-between px-4 z-20 shadow-sm transition-colors shrink-0">
             <button id="back-btn" class="flex items-center gap-1.5 px-3 py-2 bg-slate-800 text-white rounded-xl font-bold text-xs" onclick="window.goBack()">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" /></svg>
                 Back
             </button>
             <span id="viewer-title" class="font-bold text-slate-700 truncate max-w-[150px] text-sm text-center flex-1 mx-2">Menu</span>
-            <button id="outlink-btn" class="p-2 bg-slate-800 text-white rounded-xl font-bold text-xs" onclick="window.open(window.currentOpenUrl, '_blank')">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
-            </button>
+            
+            <div class="flex items-center gap-1.5">
+                <button id="rsv-btn" class="p-1.5 px-4 bg-[#800020] text-white rounded-xl font-bold text-xs whitespace-nowrap shadow-md tracking-wide">예약</button>
+                <button id="outlink-btn" class="p-2 bg-slate-800 text-white rounded-xl font-bold text-xs" onclick="window.open(window.currentOpenUrl, '_blank')">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                </button>
+                <button id="hide-header-btn" class="p-2 bg-slate-100 text-slate-600 rounded-xl font-bold text-xs" onclick="window.hideViewerHeader()" title="넓게 보기">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" /></svg>
+                </button>
+            </div>
         </div>
         <iframe id="content-iframe" src="" allow="fullscreen"></iframe>
     </div>
+    
+    <button id="floating-back-btn" class="hidden fixed bottom-0 left-0 w-full h-[60px] z-[120] bg-slate-900 text-white shadow-[0_-10px_25px_-5px_rgba(0,0,0,0.5)] flex items-center justify-center transition-all active:bg-slate-800" onclick="window.goBack()" title="메뉴 목록으로">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" /></svg>
+        <span id="floating-back-text" class="font-bold text-[13px] tracking-wide whitespace-nowrap">메뉴 목록으로 돌아가기</span>
+    </button>
 </div>
 
 <div id="pwd-modal" class="hidden fixed inset-0 bg-black/80 z-[110] flex items-center justify-center p-6">
@@ -144,9 +157,6 @@
     import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    // ---------------------------------------------------------
-    // 시스템 변수 및 인증 로직 수정
-    // ---------------------------------------------------------
     const firebaseConfig = {
         apiKey: "AIzaSyD916tDwoQeKtP4MQMFdKnsC2AGnOkzYBI",
         authDomain: "grand-hyatt-jeju-menu.firebaseapp.com",
@@ -167,32 +177,227 @@
     window.currentOpenUrl = "";
     window.editingDay = new Date().getDay();
 
-    const createWeeklyTemplate = () => {
-        let t = {}; 
-        weekDays.forEach((_, i) => t[i] = { isOff: false, sessions: [{ label: "1차", open: "09:00", close: "14:00" }, { label: "2차", open: "17:00", close: "21:00" }, { label: "3차", open: "00:00", close: "00:00" }] }); 
+    const detectDeviceLanguage = () => {
+        const lang = navigator.language || navigator.userLanguage || 'ko';
+        const lowerLang = lang.toLowerCase();
+        if (lowerLang.startsWith('ko')) return 'ko';
+        if (lowerLang.startsWith('ja')) return 'ja';
+        if (lowerLang.startsWith('zh')) {
+            if (lowerLang.includes('tw') || lowerLang.includes('hk') || lowerLang.includes('hant') || lowerLang.includes('mo')) return 'zh-TW';
+            return 'zh-CN'; 
+        }
+        return 'en';
+    };
+
+    window.currentLang = detectDeviceLanguage();
+
+    // 💡 요일(days) 배열과 깔끔한 단어 매핑으로 업데이트
+    const i18n = {
+        'ko': { open: '영업 중', break: '브레이크', closed: '영업 종료', ready: '영업 준비중', off: '정기 휴무', closeAt: '마감', reopenAt: '영업재개', openAt: '오픈', noInfo: '정보 없음', needSetup: '설정 필요', tmrw: '내일', rsv: '예약', inquiry: '문의', backToMenu: '메뉴 목록으로 돌아가기', breakfast: '조식', lunch: '중식', dinner: '석식', hours24: '24시간 영업', days: ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'] },
+        'en': { open: 'Open', break: 'Break', closed: 'Closed', ready: 'Ready', off: 'Off', closeAt: 'Close', reopenAt: 'Reopen', openAt: 'Open', noInfo: 'No Info', needSetup: 'Setup Needed', tmrw: 'Tomorrow', rsv: 'RSVP', inquiry: 'Inquiry', backToMenu: 'Back to Menu', breakfast: 'Breakfast', lunch: 'Lunch', dinner: 'Dinner', hours24: '24 Hours', days: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] },
+        'ja': { open: '営業中', break: '休憩', closed: '営業終了', ready: '準備中', off: '定休日', closeAt: '終了', reopenAt: '営業再開', openAt: '開始', noInfo: '情報なし', needSetup: '設定必要', tmrw: '明日', rsv: '予約', inquiry: 'お問い合わせ', backToMenu: 'メニューに戻る', breakfast: '朝食', lunch: '昼食', dinner: '夕食', hours24: '24時間営業', days: ['日曜日', '月曜日', '火曜日', '水曜日', '木曜日', '金曜日', '土曜日'] },
+        'zh-CN': { open: '营业中', break: '休息', closed: '已打烊', ready: '准备中', off: '休息日', closeAt: '结束', reopenAt: '重新营业', openAt: '开始', noInfo: '无信息', needSetup: '需要设置', tmrw: '明天', rsv: '预订', inquiry: '咨询', backToMenu: '返回菜单', breakfast: '早餐', lunch: '午餐', dinner: '晚餐', hours24: '24小时营业', days: ['周日', '周一', '周二', '周三', '周四', '周五', '周六'] },
+        'zh-TW': { open: '營業中', break: '休息', closed: '已打烊', ready: '準備中', off: '休息日', closeAt: '結束', reopenAt: '重新營業', openAt: '開始', noInfo: '無資訊', needSetup: '需要設置', tmrw: '明天', rsv: '預訂', inquiry: '諮詢', backToMenu: '返回菜單', breakfast: '早餐', lunch: '午餐', dinner: '晚餐', hours24: '24小時營業', days: ['週日', '週一', '週二', '週三', '週四', '週五', '週六'] }
+    };
+
+    const getLabel = (label) => {
+        if (!label) return ''; 
+        return i18n[window.currentLang][label] || label;
+    };
+
+    const floorColors = {
+        'L1': '#78716c', 
+        'L2': '#A38A59', 
+        'L3': '#8A3A42', 
+        'L4': '#3F4E40', 
+        'L8': '#115E59', 
+        'L38': '#0F172A' 
+    };
+
+    const langLabels = { ko: '한국어', en: 'English', 'zh-CN': '간체', 'zh-TW': '번체', ja: '일본어' };
+
+    const makeWeekly = (type) => {
+        let t = {};
+        for (let i = 0; i < 7; i++) { 
+            let isOff = false;
+            let sessions = [{label:'', open:'00:00', close:'00:00'}, {label:'', open:'00:00', close:'00:00'}, {label:'', open:'00:00', close:'00:00'}];
+
+            if (type === 'gallery') {
+                sessions[0] = {label:'', open:'10:00', close:'22:00'};
+            } else if (type === '24h') {
+                sessions[0] = {label:'', open:'00:00', close:'24:00'};
+            } else if (type === 'china') {
+                if (i === 2 || i === 3) { 
+                    sessions[0] = {label:'dinner', open:'17:00', close:'22:00'};
+                } else {
+                    sessions[0] = {label:'lunch', open:'11:30', close:'15:00'};
+                    sessions[1] = {label:'dinner', open:'17:00', close:'22:00'};
+                }
+            } else if (type === 'noknamu') {
+                sessions[0] = {label:'lunch', open:'11:30', close:'15:00'};
+                sessions[1] = {label:'dinner', open:'17:00', close:'22:00'};
+            } else if (type === 'hotpot') {
+                sessions[0] = {label:'dinner', open:'17:00', close:'22:00'};
+            } else if (type === 'foodcourt') {
+                sessions[0] = {label:'', open:'07:00', close:'22:00'};
+            } else if (type === 'deli') {
+                sessions[0] = {label:'', open:'10:00', close:'21:00'};
+            } else if (type === 'grandkitchen') {
+                sessions[0] = {label:'breakfast', open:'07:00', close:'11:00'};
+                sessions[1] = {label:'lunch', open:'11:30', close:'15:00'};
+                sessions[2] = {label:'dinner', open:'17:00', close:'22:00'};
+            } else if (type === 'yumeyama') {
+                if (i === 1 || i === 2) { 
+                    isOff = true;
+                } else {
+                    sessions[0] = {label:'dinner', open:'17:00', close:'24:00'};
+                }
+            } else if (type === '88') {
+                sessions[0] = {label:'', open:'11:30', close:'22:00'};
+            } else if (type === 'lounge38') {
+                if (i === 5 || i === 6) { 
+                    sessions[0] = {label:'', open:'12:00', close:'02:00'};
+                } else {
+                    sessions[0] = {label:'', open:'12:00', close:'01:00'};
+                }
+            } else if (type === 'pocha') {
+                sessions[0] = {label:'breakfast', open:'07:00', close:'13:00'};
+                if (i === 5 || i === 6) { 
+                    sessions[1] = {label:'dinner', open:'17:00', close:'02:00'};
+                } else {
+                    sessions[1] = {label:'dinner', open:'17:00', close:'01:00'};
+                }
+            } else if (type === 'bluedragon') {
+                if (i === 2 || i === 3) { 
+                    isOff = true;
+                } else {
+                    sessions[0] = {label:'dinner', open:'17:00', close:'22:00'};
+                }
+            }
+            
+            t[i] = { isOff, sessions };
+        }
         return t;
     };
 
     const defaultStores = [
-        { id: 1, name: "Gallery Lounge", floor: "L1", themeColor: "#463B33", url: "https://edit.istay.io/viewer/index.html?site=fbgal#/ko/store/984d8fc9-d58a-4bcf-aed8-1d803a1b32ed/3790ozmo", img: "https://i.postimg.cc/HkLjfYLF/gaelleolilaunji.jpg", weekly: createWeeklyTemplate() },
-        { id: 2, name: "99Valley", floor: "L2", themeColor: "#82611c", url: "https://edit.istay.io/viewer/index.html?site=fb99v#/ko/store/e1635994-e41a-46ca-99bd-08895789001c/7734hio1", img: "https://i.postimg.cc/q7c4BfWJ/99-Valley.jpg", weekly: createWeeklyTemplate() },
-        { id: 3, name: "Noknamu", floor: "L3", themeColor: "#453422", url: "https://edit.istay.io/viewer/index.html?site=fbnox#/ko/store/3c677ff1-c1c5-4574-8d60-048496ea1cfa/8481tevr", img: "https://i.postimg.cc/XJXHHdfg/nognamu.jpg", weekly: createWeeklyTemplate() },
-        { id: 4, name: "China House", floor: "L3", themeColor: "#7c1818", url: "https://edit.istay.io/viewer/index.html?site=fbchh#/ko/store/c46b6223-3bec-4fdc-99af-c528378cda08/3295bslj", img: "https://i.postimg.cc/263cchQt/chaina-hauseu.jpg", weekly: createWeeklyTemplate() },
-        { id: 5, name: "Jeju Hotpot", floor: "L3", themeColor: "#820002", url: "https://edit.istay.io/viewer/index.html?site=fbpot#/ko/store/1158ec0a-7ecf-4a5c-a487-1771f53f3502/483150kk", img: "https://i.postimg.cc/B6tYYHTd/haspas.jpg", weekly: createWeeklyTemplate() },
-        { id: 6, name: "Dream Food Court", floor: "L3", themeColor: "#ef942d", url: "https://www.jejudreamtower.com/upload/file/fileresource/2404/17614.pdf", img: "https://i.postimg.cc/ydWQQcmj/deulim-pudeukoteu.jpg", weekly: createWeeklyTemplate() },
-        { id: 7, name: "Grand Kitchen", floor: "L4", themeColor: "#5e5047", url: "https://www.jejudreamtower.com/upload/file/fileresource/966/17619.pdf", img: "https://i.postimg.cc/MG93mdQt/geulaendeu-kichin.jpg", weekly: createWeeklyTemplate() },
-        { id: 8, name: "Deli", floor: "L4", themeColor: "#90b2af", url: "https://www.jejudreamtower.com/upload/file/fileresource/959/17523.pdf", img: "https://i.postimg.cc/Kz4qqBPD/delli.jpg", weekly: createWeeklyTemplate() },
-        { id: 9, name: "Yumeyama", floor: "L4", themeColor: "#031d42", url: "https://edit.istay.io/viewer/index.html?site=fbyum#/ko/store/d3a3203c-c733-49e0-a395-7109edb5c528/7560zc5b", img: "https://i.postimg.cc/76bss03W/yumeyama.jpg", weekly: createWeeklyTemplate() },
-        { id: 10, name: "The 88", floor: "L8", themeColor: "#8dad21", url: "https://edit.istay.io/viewer/index.html?site=fbcaf#/ko/store/c11f69b7-2b3f-44d8-a767-938340977a33/1265f4rr", img: "https://i.postimg.cc/LsxQ3N1y/deo-88.jpg", weekly: createWeeklyTemplate() },
-        { id: 11, name: "The 88 Terrace", floor: "L8", themeColor: "#8dad21", url: "https://edit.istay.io/viewer/index.html?site=fbcaf#/ko/store/c88f0b25-462a-470d-a86e-52c3a2f1fac0/6704y042", img: "https://i.postimg.cc/k5TYvfbf/deo-88-telaseu.jpg", weekly: createWeeklyTemplate() },
-        { id: 12, name: "Lounge 38", floor: "L38", themeColor: "#77582c", url: "https://edit.istay.io/viewer/index.html?site=fbl38#/ko/store/2db5dc63-bd21-4244-8892-fb3eca8f5e8d/4809kmhi", img: "https://i.postimg.cc/TwbM4V0Y/launji-38.jpg", weekly: createWeeklyTemplate() },
-        { id: 13, name: "Blue Dragon", floor: "L8", themeColor: "#031d42", url: "https://edit.istay.io/viewer/index.html?site=fbbdg#/ko/store/ef3b1278-b47c-49e6-aa8b-d2ca2746c32c/86042d2h", img: "https://i.postimg.cc/9Mz88Zd8/beulludeulaegon.jpg", weekly: createWeeklyTemplate() },
-        { id: 14, name: "Pocha", floor: "L38", themeColor: "#c23c61", url: "https://edit.istay.io/viewer/index.html?site=fbcha#/ko/store/85ac8f34-f6af-4e1a-9561-10c277c8e7e1/5699dovg", img: "https://i.postimg.cc/vBDqqfrj/pocha.jpg", weekly: createWeeklyTemplate() },
+        { 
+            id: 1, name: "Gallery Lounge", floor: "L1", themeColor: "#463B33", phone: "010-7470-0839", rsvType: "inquiry", url: "https://edit.istay.io/viewer/index.html?site=fbgal#/ko/store/984d8fc9-d58a-4bcf-aed8-1d803a1b32ed/3790ozmo", img: "https://i.postimg.cc/HkLjfYLF/gaelleolilaunji.jpg", weekly: makeWeekly('gallery'),
+            urls: { ko: "https://edit.istay.io/viewer/index.html?site=fbgal#/ko/store/984d8fc9-d58a-4bcf-aed8-1d803a1b32ed/3790ozmo", en: "https://edit.istay.io/viewer/index.html?site=fbgal#/en/store/984d8fc9-d58a-4bcf-aed8-1d803a1b32ed/3790ozmo", "zh-CN": "https://edit.istay.io/viewer/index.html?site=fbgal#/zh-CN/store/984d8fc9-d58a-4bcf-aed8-1d803a1b32ed/3790ozmo", "zh-TW": "https://edit.istay.io/viewer/index.html?site=fbgal#/zh-TW/store/984d8fc9-d58a-4bcf-aed8-1d803a1b32ed/3790ozmo", ja: "https://edit.istay.io/viewer/index.html?site=fbgal#/ja/store/984d8fc9-d58a-4bcf-aed8-1d803a1b32ed/3790ozmo" } 
+        },
+        { 
+            id: 2, name: "99Valley", floor: "L2", themeColor: "#82611c", phone: "010-7470-0743", rsvType: "inquiry", url: "https://edit.istay.io/viewer/index.html?site=fb99v#/ko/store/e1635994-e41a-46ca-99bd-08895789001c/7734hio1", img: "https://i.postimg.cc/q7c4BfWJ/99-Valley.jpg", weekly: makeWeekly('24h'),
+            urls: { ko: "https://edit.istay.io/viewer/index.html?site=fb99v#/ko/store/e1635994-e41a-46ca-99bd-08895789001c/7734hio1", en: "https://edit.istay.io/viewer/index.html?site=fb99v#/en/store/e1635994-e41a-46ca-99bd-08895789001c/7734hio1", "zh-CN": "https://edit.istay.io/viewer/index.html?site=fb99v#/zh-CN/store/e1635994-e41a-46ca-99bd-08895789001c/7734hio1", "zh-TW": "https://edit.istay.io/viewer/index.html?site=fb99v#/zh-TW/store/e1635994-e41a-46ca-99bd-08895789001c/7734hio1", ja: "https://edit.istay.io/viewer/index.html?site=fb99v#/ja/store/e1635994-e41a-46ca-99bd-08895789001c/7734hio1" } 
+        },
+        { 
+            id: 3, name: "Noknamu", floor: "L3", themeColor: "#453422", phone: "010-7470-0785", rsvType: "rsv", url: "https://edit.istay.io/viewer/index.html?site=fbnox#/ko/store/3c677ff1-c1c5-4574-8d60-048496ea1cfa/8481tevr", img: "https://i.postimg.cc/XJXHHdfg/nognamu.jpg", weekly: makeWeekly('noknamu'),
+            urls: { ko: "https://edit.istay.io/viewer/index.html?site=fbnox#/ko/store/3c677ff1-c1c5-4574-8d60-048496ea1cfa/8481tevr", en: "https://edit.istay.io/viewer/index.html?site=fbnox#/en/store/3c677ff1-c1c5-4574-8d60-048496ea1cfa/8481tevr", "zh-CN": "https://edit.istay.io/viewer/index.html?site=fbnox#/zh-CN/store/3c677ff1-c1c5-4574-8d60-048496ea1cfa/8481tevr", "zh-TW": "https://edit.istay.io/viewer/index.html?site=fbnox#/zh-TW/store/3c677ff1-c1c5-4574-8d60-048496ea1cfa/8481tevr", ja: "https://edit.istay.io/viewer/index.html?site=fbnox#/ja/store/3c677ff1-c1c5-4574-8d60-048496ea1cfa/8481tevr" } 
+        },
+        { 
+            id: 4, name: "China House", floor: "L3", themeColor: "#7c1818", phone: "010-7470-0764", rsvType: "rsv", url: "https://edit.istay.io/viewer/index.html?site=fbchh#/ko/store/c46b6223-3bec-4fdc-99af-c528378cda08/3295bslj", img: "https://i.postimg.cc/263cchQt/chaina-hauseu.jpg", weekly: makeWeekly('china'),
+            urls: { ko: "https://edit.istay.io/viewer/index.html?site=fbchh#/ko/store/c46b6223-3bec-4fdc-99af-c528378cda08/3295bslj", en: "https://edit.istay.io/viewer/index.html?site=fbchh#/en/store/c46b6223-3bec-4fdc-99af-c528378cda08/3295bslj", "zh-CN": "https://edit.istay.io/viewer/index.html?site=fbchh#/zh-CN/store/c46b6223-3bec-4fdc-99af-c528378cda08/3295bslj", "zh-TW": "https://edit.istay.io/viewer/index.html?site=fbchh#/zh-TW/store/c46b6223-3bec-4fdc-99af-c528378cda08/3295bslj", ja: "https://edit.istay.io/viewer/index.html?site=fbchh#/ja/store/c46b6223-3bec-4fdc-99af-c528378cda08/3295bslj" } 
+        },
+        { 
+            id: 5, name: "Jeju Hotpot", floor: "L3", themeColor: "#820002", phone: "010-7470-0764", rsvType: "rsv", url: "https://edit.istay.io/viewer/index.html?site=fbpot#/ko/store/1158ec0a-7ecf-4a5c-a487-1771f53f3502/483150kk", img: "https://i.postimg.cc/B6tYYHTd/haspas.jpg", weekly: makeWeekly('hotpot'),
+            urls: { ko: "https://edit.istay.io/viewer/index.html?site=fbpot#/ko/store/1158ec0a-7ecf-4a5c-a487-1771f53f3502/483150kk", en: "https://edit.istay.io/viewer/index.html?site=fbpot#/en/store/1158ec0a-7ecf-4a5c-a487-1771f53f3502/483150kk", "zh-CN": "https://edit.istay.io/viewer/index.html?site=fbpot#/zh-CN/store/1158ec0a-7ecf-4a5c-a487-1771f53f3502/483150kk", "zh-TW": "https://edit.istay.io/viewer/index.html?site=fbpot#/zh-TW/store/1158ec0a-7ecf-4a5c-a487-1771f53f3502/483150kk", ja: "https://edit.istay.io/viewer/index.html?site=fbpot#/ja/store/1158ec0a-7ecf-4a5c-a487-1771f53f3502/483150kk" } 
+        },
+        { 
+            id: 6, name: "Dream Food Court", floor: "L3", themeColor: "#ef942d", phone: "010-7470-0762", rsvType: "inquiry", url: "https://www.jejudreamtower.com/upload/file/fileresource/2403/17613.pdf", img: "https://i.postimg.cc/ydWQQcmj/deulim-pudeukoteu.jpg", weekly: makeWeekly('foodcourt'),
+            urls: { 
+                ko: "https://www.jejudreamtower.com/upload/file/fileresource/2403/17613.pdf", 
+                en: "https://www.jejudreamtower.com/upload/file/fileresource/2404/17614.pdf", 
+                "zh-CN": "https://www.jejudreamtower.com/upload/file/fileresource/2405/17615.pdf", 
+                "zh-TW": "https://www.jejudreamtower.com/upload/file/fileresource/2406/17616.pdf", 
+                ja: "https://www.jejudreamtower.com/upload/file/fileresource/2407/17617.pdf" 
+            } 
+        },
+        { 
+            id: 7, name: "Grand Kitchen", floor: "L4", themeColor: "#5e5047", phone: "010-7470-0769", rsvType: "rsv", url: "https://www.jejudreamtower.com/upload/file/fileresource/965/17618.pdf", img: "https://i.postimg.cc/MG93mdQt/geulaendeu-kichin.jpg", weekly: makeWeekly('grandkitchen'),
+            urls: { 
+                ko: "https://www.jejudreamtower.com/upload/file/fileresource/965/17618.pdf", 
+                en: "https://www.jejudreamtower.com/upload/file/fileresource/966/17619.pdf", 
+                "zh-CN": "https://www.jejudreamtower.com/upload/file/fileresource/967/17620.pdf", 
+                "zh-TW": "https://www.jejudreamtower.com/upload/file/fileresource/2232/17622.pdf", 
+                ja: "https://www.jejudreamtower.com/upload/file/fileresource/1300/17621.pdf" 
+            } 
+        },
+        { 
+            id: 8, name: "Deli", floor: "L4", themeColor: "#90b2af", phone: "010-7470-0782", rsvType: "rsv", url: "https://www.jejudreamtower.com/upload/file/fileresource/959/17523.pdf", img: "https://i.postimg.cc/Kz4qqBPD/delli.jpg", weekly: makeWeekly('deli'),
+            urls: { 
+                ko: "https://www.jejudreamtower.com/upload/file/fileresource/959/17523.pdf", 
+                en: "https://www.jejudreamtower.com/upload/file/fileresource/960/17524.pdf", 
+                "zh-CN": "https://www.jejudreamtower.com/upload/file/fileresource/961/17525.pdf", 
+                "zh-TW": "https://www.jejudreamtower.com/upload/file/fileresource/2230/17527.pdf", 
+                ja: "https://www.jejudreamtower.com/upload/file/fileresource/2118/17526.pdf" 
+            } 
+        },
+        { 
+            id: 9, name: "Yumeyama", floor: "L4", themeColor: "#031d42", phone: "010-7470-0837", rsvType: "rsv", url: "https://edit.istay.io/viewer/index.html?site=fbyum#/ko/store/d3a3203c-c733-49e0-a395-7109edb5c528/7560zc5b", img: "https://i.postimg.cc/76bss03W/yumeyama.jpg", weekly: makeWeekly('yumeyama'),
+            urls: { 
+                ko: "https://edit.istay.io/viewer/index.html?site=fbyum#/ko/store/d3a3203c-c733-49e0-a395-7109edb5c528/7560zc5b", 
+                en: "https://edit.istay.io/viewer/index.html?site=fbyum#/en/store/d3a3203c-c733-49e0-a395-7109edb5c528/7560zc5b", 
+                "zh-CN": "https://edit.istay.io/viewer/index.html?site=fbyum#/zh-CN/store/d3a3203c-c733-49e0-a395-7109edb5c528/7560zc5b", 
+                "zh-TW": "https://edit.istay.io/viewer/index.html?site=fbyum#/zh-TW/store/d3a3203c-c733-49e0-a395-7109edb5c528/7560zc5b", 
+                ja: "https://edit.istay.io/viewer/index.html?site=fbyum#/ja/store/d3a3203c-c733-49e0-a395-7109edb5c528/7560zc5b" 
+            } 
+        },
+        { 
+            id: 10, name: "The 88", floor: "L8", themeColor: "#8dad21", phone: "010-7470-0892", rsvType: "rsv", url: "https://edit.istay.io/viewer/index.html?site=fbcaf#/ko/store/c11f69b7-2b3f-44d8-a767-938340977a33/1265f4rr", img: "https://i.postimg.cc/LsxQ3N1y/deo-88.jpg", weekly: makeWeekly('88'),
+            urls: { 
+                ko: "https://edit.istay.io/viewer/index.html?site=fbcaf#/ko/store/c11f69b7-2b3f-44d8-a767-938340977a33/1265f4rr", 
+                en: "https://edit.istay.io/viewer/index.html?site=fbcaf#/en/store/c11f69b7-2b3f-44d8-a767-938340977a33/1265f4rr", 
+                "zh-CN": "https://edit.istay.io/viewer/index.html?site=fbcaf#/zh-CN/store/c11f69b7-2b3f-44d8-a767-938340977a33/1265f4rr", 
+                "zh-TW": "https://edit.istay.io/viewer/index.html?site=fbcaf#/zh-TW/store/c11f69b7-2b3f-44d8-a767-938340977a33/1265f4rr", 
+                ja: "https://edit.istay.io/viewer/index.html?site=fbcaf#/ja/store/c11f69b7-2b3f-44d8-a767-938340977a33/1265f4rr" 
+            } 
+        },
+        { 
+            id: 11, name: "The 88 Terrace", floor: "L8", themeColor: "#8dad21", phone: "010-7470-0892", rsvType: "rsv", url: "https://edit.istay.io/viewer/index.html?site=fbcaf#/ko/store/c88f0b25-462a-470d-a86e-52c3a2f1fac0/6704y042", img: "https://i.postimg.cc/k5TYvfbf/deo-88-telaseu.jpg", weekly: makeWeekly('88'),
+            urls: { 
+                ko: "https://edit.istay.io/viewer/index.html?site=fbcaf#/ko/store/c88f0b25-462a-470d-a86e-52c3a2f1fac0/6704y042", 
+                en: "https://edit.istay.io/viewer/index.html?site=fbcaf#/en/store/c88f0b25-462a-470d-a86e-52c3a2f1fac0/6704y042", 
+                "zh-CN": "https://edit.istay.io/viewer/index.html?site=fbcaf#/zh-CN/store/c88f0b25-462a-470d-a86e-52c3a2f1fac0/6704y042", 
+                "zh-TW": "https://edit.istay.io/viewer/index.html?site=fbcaf#/zh-TW/store/c88f0b25-462a-470d-a86e-52c3a2f1fac0/6704y042", 
+                ja: "https://edit.istay.io/viewer/index.html?site=fbcaf#/ja/store/c88f0b25-462a-470d-a86e-52c3a2f1fac0/6704y042" 
+            } 
+        },
+        { 
+            id: 12, name: "Lounge 38", floor: "L38", themeColor: "#77582c", phone: "010-7470-0749", rsvType: "rsv", url: "https://edit.istay.io/viewer/index.html?site=fbl38#/ko/store/2db5dc63-bd21-4244-8892-fb3eca8f5e8d/4809kmhi", img: "https://i.postimg.cc/TwbM4V0Y/launji-38.jpg", weekly: makeWeekly('lounge38'),
+            urls: { 
+                ko: "https://edit.istay.io/viewer/index.html?site=fbl38#/ko/store/2db5dc63-bd21-4244-8892-fb3eca8f5e8d/4809kmhi", 
+                en: "https://edit.istay.io/viewer/index.html?site=fbl38#/en/store/2db5dc63-bd21-4244-8892-fb3eca8f5e8d/4809kmhi", 
+                "zh-CN": "https://edit.istay.io/viewer/index.html?site=fbl38#/zh-CN/store/2db5dc63-bd21-4244-8892-fb3eca8f5e8d/4809kmhi", 
+                "zh-TW": "https://edit.istay.io/viewer/index.html?site=fbl38#/zh-TW/store/2db5dc63-bd21-4244-8892-fb3eca8f5e8d/4809kmhi", 
+                ja: "https://edit.istay.io/viewer/index.html?site=fbl38#/ja/store/2db5dc63-bd21-4244-8892-fb3eca8f5e8d/4809kmhi" 
+            } 
+        },
+        { 
+            id: 13, name: "Blue Dragon", floor: "L38", themeColor: "#031d42", phone: "010-7470-0761", rsvType: "rsv", url: "https://edit.istay.io/viewer/index.html?site=fbbdg#/ko/store/ef3b1278-b47c-49e6-aa8b-d2ca2746c32c/86042d2h", img: "https://i.postimg.cc/9Mz88Zd8/beulludeulaegon.jpg", weekly: makeWeekly('bluedragon'),
+            urls: { 
+                ko: "https://edit.istay.io/viewer/index.html?site=fbbdg#/ko/store/ef3b1278-b47c-49e6-aa8b-d2ca2746c32c/86042d2h", 
+                en: "https://edit.istay.io/viewer/index.html?site=fbbdg#/en/store/ef3b1278-b47c-49e6-aa8b-d2ca2746c32c/86042d2h", 
+                "zh-CN": "https://edit.istay.io/viewer/index.html?site=fbbdg#/zh-CN/store/ef3b1278-b47c-49e6-aa8b-d2ca2746c32c/86042d2h", 
+                "zh-TW": "https://edit.istay.io/viewer/index.html?site=fbbdg#/zh-TW/store/ef3b1278-b47c-49e6-aa8b-d2ca2746c32c/86042d2h", 
+                ja: "https://edit.istay.io/viewer/index.html?site=fbbdg#/ja/store/ef3b1278-b47c-49e6-aa8b-d2ca2746c32c/86042d2h" 
+            } 
+        },
+        { 
+            id: 14, name: "Pocha", floor: "L38", themeColor: "#c23c61", phone: "010-7470-0754", rsvType: "inquiry", url: "https://edit.istay.io/viewer/index.html?site=fbcha#/ko/store/85ac8f34-f6af-4e1a-9561-10c277c8e7e1/5699dovg", img: "https://i.postimg.cc/vBDqqfrj/pocha.jpg", weekly: makeWeekly('pocha'),
+            urls: { 
+                ko: "https://edit.istay.io/viewer/index.html?site=fbcha#/ko/store/85ac8f34-f6af-4e1a-9561-10c277c8e7e1/5699dovg", 
+                en: "https://edit.istay.io/viewer/index.html?site=fbcha#/en/store/85ac8f34-f6af-4e1a-9561-10c277c8e7e1/5699dovg", 
+                "zh-CN": "https://edit.istay.io/viewer/index.html?site=fbcha#/zh-CN/store/85ac8f34-f6af-4e1a-9561-10c277c8e7e1/5699dovg", 
+                "zh-TW": "https://edit.istay.io/viewer/index.html?site=fbcha#/zh-TW/store/85ac8f34-f6af-4e1a-9561-10c277c8e7e1/5699dovg", 
+                ja: "https://edit.istay.io/viewer/index.html?site=fbcha#/ja/store/85ac8f34-f6af-4e1a-9561-10c277c8e7e1/5699dovg" 
+            } 
+        },
     ];
 
     async function init() {
         startClock();
         
+        document.getElementById('lang-select').value = window.currentLang;
+
         window.stores = [...defaultStores];
         render();
 
@@ -209,7 +414,6 @@
             document.getElementById('loading-text').innerText = "보안 인증 중...";
             let isAuthSuccess = false;
             
-            // 캔버스 환경이 발급한 토큰이 외부 프로젝트(고객님 DB)와 충돌하는 것을 방지
             if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
                 try {
                     await signInWithCustomToken(auth, __initial_auth_token);
@@ -223,8 +427,8 @@
                 await signInAnonymously(auth);
             }
         } catch (e) {
-            console.error("인증 실패. 파이어베이스 콘솔에서 '익명(Anonymous)' 로그인이 켜져 있는지 확인하세요.", e);
-            document.getElementById('loading-text').innerHTML = "<span class='text-red-500'>인증 실패 (오프라인 모드)</span><br><span class='text-[10px] text-gray-500 mt-2 block'>Firebase 콘솔 > Authentication 에서<br>'익명 로그인'을 켜주세요.</span>";
+            console.error("인증 실패.", e);
+            document.getElementById('loading-text').innerHTML = "<span class='text-red-500'>인증 실패 (오프라인 모드)</span>";
             setTimeout(hideSpinner, 5000);
             return;
         }
@@ -233,7 +437,8 @@
             if (!user) return;
             document.getElementById('loading-text').innerText = "데이터 동기화 중...";
 
-            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'storeConfigs', 'main');
+            // 💡 데이터 갱신을 위해 'main_v5'으로 버전을 업그레이드했습니다.
+            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'storeConfigs', 'main_v5');
             
             onSnapshot(docRef, (docSnap) => {
                 if (docSnap.exists()) {
@@ -241,10 +446,14 @@
                     window.stores = dbData.map((s, i) => ({
                         ...s,
                         floor: s.floor || defaultStores[i]?.floor || '',
-                        themeColor: s.themeColor || defaultStores[i]?.themeColor || '#ffffff'
+                        themeColor: s.themeColor || defaultStores[i]?.themeColor || '#ffffff',
+                        urls: s.urls || defaultStores[i]?.urls, 
+                        phone: s.phone || defaultStores[i]?.phone || '',
+                        rsvType: s.rsvType || defaultStores[i]?.rsvType || 'rsv',
+                        weekly: s.weekly || defaultStores[i]?.weekly 
                     }));
                 } else {
-                    setDoc(docRef, { stores: defaultStores });
+                    setDoc(docRef, { stores: window.stores });
                 }
                 render();
                 hideSpinner();
@@ -256,7 +465,7 @@
 
         window.saveToCloud = async () => {
             if (!auth.currentUser) return;
-            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'storeConfigs', 'main');
+            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'storeConfigs', 'main_v5');
             await setDoc(docRef, { stores: window.stores });
         };
     }
@@ -291,6 +500,7 @@
     }
 
     function getBusinessStatus(store) {
+        const t = i18n[window.currentLang]; 
         const now = new Date();
         const curMin = now.getHours() * 60 + now.getMinutes();
         const nowDay = now.getDay();
@@ -299,37 +509,68 @@
         const todaySched = store.weekly[nowDay];
         const prevSched = store.weekly[prevDay];
 
+        // 1. 체크: 전날부터 이어진 심야 영업
         if (prevSched && !prevSched.isOff) {
             const prevSessions = (prevSched.sessions || []).filter(s => s.open !== s.close);
             for (let s of prevSessions) {
                 let open = timeToMin(s.open);
                 let close = timeToMin(s.close);
                 if (close <= open && curMin < close) {
-                    return { label: "Open", class: "status-open", next: `${s.label} 마감: ${s.close}` };
+                    const lbl = getLabel(s.label);
+                    return { label: t.open, class: "status-open", next: `${lbl ? lbl + ' ' : ''}${s.close} ${t.closeAt}` };
                 }
             }
         }
 
-        if (!todaySched || todaySched.isOff) return { label: "Off", class: "status-off", next: "내일 확인" };
+        // 💡 [스마트 휴무일 계산기] 다음으로 가장 빨리 오픈하는 요일과 시간을 계산합니다.
+        const getNextOpenText = () => {
+            for (let offset = 0; offset <= 7; offset++) {
+                let checkDay = (nowDay + offset) % 7;
+                let sched = store.weekly[checkDay];
+                if (!sched || sched.isOff) continue;
+                let validSessions = (sched.sessions || []).filter(s => s.open !== s.close).sort((a, b) => timeToMin(a.open) - timeToMin(b.open));
+                
+                for (let s of validSessions) {
+                    let openMin = timeToMin(s.open);
+                    if (offset === 0 && openMin > curMin) {
+                        return `${s.open} ${t.openAt}`; 
+                    } else if (offset > 0) {
+                        // 내일이면 '내일', 그 외의 요일이면 해당 요일(예: '수요일')을 붙입니다.
+                        let dayPrefix = offset === 1 ? t.tmrw : t.days[checkDay];
+                        return `${dayPrefix} ${s.open} ${t.openAt}`; 
+                    }
+                }
+            }
+            return t.needSetup;
+        };
+
+        if (!todaySched || todaySched.isOff) return { label: t.off, class: "status-off", next: getNextOpenText() };
         
         const sessions = (todaySched.sessions || []).filter(s => s.open !== s.close).sort((a, b) => timeToMin(a.open) - timeToMin(b.open));
-        if (sessions.length === 0) return { label: "정보 없음", class: "status-closed", next: "영업 시간 설정 필요" };
+        if (sessions.length === 0) return { label: t.noInfo, class: "status-closed", next: t.needSetup };
 
+        // 2. 당일 현재 영업 중인지 체크
         for (let i = 0; i < sessions.length; i++) {
             let open = timeToMin(sessions[i].open);
             let close = timeToMin(sessions[i].close);
             let actualClose = close <= open ? close + 1440 : close; 
             
             if (curMin >= open && curMin < actualClose) {
-                return { label: "Open", class: "status-open", next: `${sessions[i].label} 마감: ${sessions[i].close}` };
+                if (sessions[i].open === '00:00' && sessions[i].close === '24:00') {
+                    return { label: t.open, class: "status-open", next: t.hours24 };
+                }
+                const lbl = getLabel(sessions[i].label);
+                return { label: t.open, class: "status-open", next: `${lbl ? lbl + ' ' : ''}${sessions[i].close} ${t.closeAt}` };
             }
         }
 
+        // 3. 아직 첫 세션 전 (오픈 전)
         let firstOpen = timeToMin(sessions[0].open);
         if (curMin < firstOpen) {
-            return { label: "Ready", class: "status-break", next: `오픈: ${sessions[0].open}` };
+            return { label: t.ready, class: "status-break", next: `${sessions[0].open} ${t.openAt}` };
         }
 
+        // 4. 브레이크 타임인지 체크
         for (let i = 0; i < sessions.length - 1; i++) {
             let currentClose = timeToMin(sessions[i].close);
             let nextOpen = timeToMin(sessions[i+1].open);
@@ -337,11 +578,12 @@
             if (currentClose <= timeToMin(sessions[i].open)) currentClose += 1440; 
             
             if (curMin >= currentClose && curMin < nextOpen) {
-                return { label: "Break", class: "status-break", next: `재오픈: ${sessions[i+1].open}` };
+                return { label: t.break, class: "status-break", next: `${sessions[i+1].open} ${t.reopenAt}` };
             }
         }
 
-        return { label: "Closed", class: "status-closed", next: "영업 종료" };
+        // 5. 그 외 당일 영업 종료인 경우 (내일이나 며칠 뒤 오픈 시간 탐색)
+        return { label: t.closed, class: "status-closed", next: getNextOpenText() };
     }
 
     function render() {
@@ -353,14 +595,20 @@
         window.stores.forEach((store, sIdx) => {
             const status = getBusinessStatus(store);
             const cardDay = window.isEditMode ? window.editingDay : nowDay;
-            const sched = store.weekly[cardDay];
-            const isPdf = store.url.toLowerCase().endsWith('.pdf') || store.url.includes('drive.google.com');
+            const sched = store.weekly ? store.weekly[cardDay] : { isOff: false, sessions: [] };
+            
+            const currentUrl = store.urls?.[window.currentLang] || store.url; 
+            
+            const isPdf = currentUrl.toLowerCase().endsWith('.pdf') || currentUrl.includes('drive.google.com');
             const safeThemeColor = store.themeColor || '#ffffff';
+            const floorColor = floorColors[store.floor] || '#1e293b'; 
+            const storePhone = store.phone || ''; 
+            const rsvType = store.rsvType || 'rsv';
 
             const card = document.createElement('div');
             card.className = `store-card bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden flex flex-col ${window.isEditMode ? 'ring-2 ring-[#800020]' : ''}`;
             card.innerHTML = `
-                <div class="aspect-video relative cursor-pointer overflow-hidden" onclick="!window.isEditMode && window.openLink('${store.url}', '${store.name}', '${safeThemeColor}')">
+                <div class="aspect-video relative cursor-pointer overflow-hidden" onclick="!window.isEditMode && window.openLink('${currentUrl}', '${store.name}', '${safeThemeColor}', '${storePhone}', '${rsvType}')">
                     <img src="${store.img}" class="w-full h-full object-cover">
                     <div class="absolute inset-0 bg-black/5"></div>
                     <div class="absolute top-2 left-2 flex gap-1">
@@ -370,15 +618,19 @@
                 </div>
                 <div class="p-4 flex flex-col gap-1">
                     <h3 class="text-sm md:text-base font-bold text-slate-800 truncate leading-tight flex items-center gap-1.5">
-                        <span class="w-1/2 p-1.5 border rounded-lg text-[10px] font-bold shrink-0 shadow-sm">${store.floor || '-'}</span>
+                        <span class="px-2 py-0.5 text-white rounded-md text-[10px] font-bold shrink-0 shadow-sm" style="background-color: ${floorColor}">${store.floor || '-'}</span>
                         ${store.name}
                     </h3>
                     <div style="display:${window.isEditMode ? 'none' : 'block'}">
                         <div class="flex flex-wrap gap-1 mb-1">
-                            ${sched.isOff ? '<span class="text-red-500 font-bold text-[10px]">정기 휴무</span>' : 
-                                (sched.sessions || []).filter(s => s.open !== s.close).map(s => 
-                                    `<span class="px-1.5 py-0.5 bg-gray-50 rounded text-[9px] text-gray-400 font-bold">${s.label}: ${s.open}-${s.close}</span>`
-                                ).join('')
+                            ${sched.isOff ? `<span class="text-red-500 font-bold text-[10px]">${i18n[window.currentLang].off}</span>` : 
+                                (sched.sessions || []).filter(s => s.open !== s.close).map(s => {
+                                    const lbl = getLabel(s.label);
+                                    if (s.open === '00:00' && s.close === '24:00') {
+                                        return `<span class="px-1.5 py-0.5 bg-gray-50 rounded text-[9px] text-gray-400 font-bold">${i18n[window.currentLang].hours24}</span>`;
+                                    }
+                                    return `<span class="px-1.5 py-0.5 bg-gray-50 rounded text-[9px] text-gray-400 font-bold">${lbl ? lbl + ': ' : ''}${s.open}-${s.close}</span>`;
+                                }).join('')
                             }
                         </div>
                         <p class="text-[11px] font-bold text-slate-500 truncate">${status.next}</p>
@@ -390,6 +642,14 @@
                                 <span class="text-[9px] text-gray-500 whitespace-nowrap">상단색상</span>
                                 <input type="color" class="w-full h-6 p-0 border-0 bg-transparent cursor-pointer" value="${safeThemeColor}" onchange="window.updateStoreField(${sIdx}, 'themeColor', this.value)">
                             </div>
+                        </div>
+
+                        <div class="flex items-center gap-1" onclick="event.stopPropagation()">
+                            <select class="p-1.5 border rounded-lg text-[9px] bg-white w-14 font-bold text-gray-500" onchange="window.updateStoreField(${sIdx}, 'rsvType', this.value)">
+                                <option value="rsv" ${rsvType === 'rsv' ? 'selected' : ''}>예약</option>
+                                <option value="inquiry" ${rsvType === 'inquiry' ? 'selected' : ''}>문의</option>
+                            </select>
+                            <input type="tel" class="flex-1 p-1.5 border rounded-lg text-[9px] bg-white" value="${storePhone}" onchange="window.updateStoreField(${sIdx}, 'phone', this.value)" placeholder="전화번호 (예: 010-1234-5678)">
                         </div>
 
                         <div class="flex overflow-x-auto gap-1 pb-1 hide-scrollbar">
@@ -404,7 +664,7 @@
                             <div class="${sched.isOff ? 'opacity-30 pointer-events-none' : ''}">
                                 ${(sched.sessions || []).map((sess, sessIdx) => `
                                     <div class="grid grid-cols-3 gap-1 pb-1.5 border-b border-slate-100 last:border-0" onclick="event.stopPropagation()">
-                                        <input type="text" class="p-1 border rounded text-[9px]" value="${sess.label}" onchange="window.updateSession(${sIdx}, ${window.editingDay}, ${sessIdx}, 'label', this.value)">
+                                        <input type="text" class="p-1 border rounded text-[9px]" value="${sess.label}" onchange="window.updateSession(${sIdx}, ${window.editingDay}, ${sessIdx}, 'label', this.value)" placeholder="세션(예: lunch)">
                                         <input type="text" class="p-1 border rounded text-[9px]" value="${sess.open}" onchange="window.updateSession(${sIdx}, ${window.editingDay}, ${sessIdx}, 'open', this.value)">
                                         <input type="text" class="p-1 border rounded text-[9px]" value="${sess.close}" onchange="window.updateSession(${sIdx}, ${window.editingDay}, ${sessIdx}, 'close', this.value)">
                                     </div>
@@ -412,8 +672,17 @@
                             </div>
                         </div>
                         
-                        <input type="text" class="w-full p-1.5 border rounded-lg text-[9px]" value="${store.url}" onchange="window.updateStoreField(${sIdx}, 'url', this.value)" placeholder="링크" onclick="event.stopPropagation()">
-                        <input type="text" class="w-full p-1.5 border rounded-lg text-[9px]" value="${store.img}" onchange="window.updateStoreField(${sIdx}, 'img', this.value)" placeholder="이미지" onclick="event.stopPropagation()">
+                        <div class="space-y-1 bg-slate-50 p-2 rounded-xl border border-slate-200">
+                            <p class="text-[9px] font-bold text-slate-500 mb-1">언어별 접속 링크 세팅</p>
+                            ${['ko', 'en', 'zh-CN', 'zh-TW', 'ja'].map(l => `
+                                <div class="flex items-center gap-1">
+                                    <span class="w-8 text-[8px] text-gray-500 font-bold">${langLabels[l]}</span>
+                                    <input type="text" class="flex-1 p-1.5 border rounded-lg text-[9px] bg-white" value="${store.urls?.[l] || (l==='ko' ? store.url : '')}" onchange="window.updateStoreUrl(${sIdx}, '${l}', this.value)" placeholder="${langLabels[l]} 전용 링크" onclick="event.stopPropagation()">
+                                </div>
+                            `).join('')}
+                        </div>
+                        
+                        <input type="text" class="w-full p-1.5 border rounded-lg text-[9px]" value="${store.img}" onchange="window.updateStoreField(${sIdx}, 'img', this.value)" placeholder="썸네일 이미지 주소" onclick="event.stopPropagation()">
                     </div>
                 </div>
             `;
@@ -421,10 +690,25 @@
         });
     }
 
+    window.changeLang = (lang) => { 
+        window.currentLang = lang; 
+        
+        const floatingBackText = document.getElementById('floating-back-text');
+        if(floatingBackText) floatingBackText.innerText = i18n[lang].backToMenu;
+        
+        render(); 
+    };
+    
     window.changeDay = (day) => { window.editingDay = day; render(); };
     window.updateWeekly = (sIdx, day, field, value) => { window.stores[sIdx].weekly[day][field] = value; if(window.saveToCloud) window.saveToCloud(); };
     window.updateSession = (sIdx, day, sessIdx, field, value) => { window.stores[sIdx].weekly[day].sessions[sessIdx][field] = value; if(window.saveToCloud) window.saveToCloud(); };
     window.updateStoreField = (sIdx, field, value) => { window.stores[sIdx][field] = value; if(window.saveToCloud) window.saveToCloud(); };
+    window.updateStoreUrl = (sIdx, lang, value) => {
+        if(!window.stores[sIdx].urls) window.stores[sIdx].urls = {};
+        window.stores[sIdx].urls[lang] = value;
+        if(lang === 'ko') window.stores[sIdx].url = value; 
+        if(window.saveToCloud) window.saveToCloud();
+    };
 
     window.unlockAdmin = () => {
         if (window.isAdmin) { window.isAdmin=false; window.isEditMode=false; document.getElementById('edit-toggle').classList.add('hidden'); render(); }
@@ -439,55 +723,96 @@
     window.closePwdModal = () => { document.getElementById('pwd-modal').classList.add('hidden'); document.getElementById('admin-pwd').value = ''; };
     window.toggleEditMode = () => { window.isEditMode=!window.isEditMode; render(); };
 
-    window.openLink = (url, title, themeColor) => {
+    window.hideViewerHeader = () => {
+        document.getElementById('viewer-header').style.display = 'none';
+        document.getElementById('floating-back-btn').classList.remove('hidden');
+    };
+
+    window.openLink = (url, title, themeColor, phone, rsvType) => {
         let targetUrl = url;
         
-        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-        if (isMobile && targetUrl.includes('/store/')) {
-            targetUrl = targetUrl.replace('/store/', '/shop/');
-        }
-
+        // --- 1. 디바이스 체크 로직 (모바일 폰 vs 태블릿/PC 분리) ---
+        const ua = navigator.userAgent;
+        const isPad = /iPad/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+        const isPhone = /iPhone|iPod/i.test(ua) || (/Android/i.test(ua) && /Mobile/i.test(ua));
+        
         window.currentOpenUrl = targetUrl;
-        
-        if (targetUrl.includes('drive.google.com')) {
-            const fileId = targetUrl.split('/d/')[1]?.split('/')[0] || targetUrl.split('id=')[1]?.split('&')[0];
-            if (fileId) targetUrl = `https://docs.google.com/viewer?url=https://drive.google.com/uc?id=${fileId}&embedded=true`;
-        }
-        
         const isPdf = targetUrl.toLowerCase().endsWith('.pdf') || targetUrl.includes('drive.google.com');
-        if (isMobile && isPdf) { window.location.href = targetUrl; return; }
+        
+        if (isPdf) {
+            const link = document.createElement('a');
+            link.href = targetUrl;
+            link.target = '_blank'; 
+            link.rel = 'noopener noreferrer';
+            document.body.appendChild(link);
+            link.click(); 
+            document.body.removeChild(link);
+            return; 
+        }
         
         const header = document.getElementById('viewer-header');
         const titleEl = document.getElementById('viewer-title');
         const backBtn = document.getElementById('back-btn');
         const outlinkBtn = document.getElementById('outlink-btn');
+        const hideBtn = document.getElementById('hide-header-btn');
+        const rsvBtn = document.getElementById('rsv-btn'); 
+        
+        if (rsvBtn) {
+            const typeStr = rsvType === 'inquiry' ? 'inquiry' : 'rsv';
+            rsvBtn.innerText = i18n[window.currentLang][typeStr];
+            if (phone) {
+                rsvBtn.style.display = 'block';
+                rsvBtn.onclick = () => window.location.href = `tel:${phone}`;
+            } else {
+                rsvBtn.style.display = 'none'; 
+            }
+        }
         
         if (!isPdf && themeColor && themeColor !== '#ffffff') {
             header.style.backgroundColor = themeColor;
             header.style.borderBottomColor = themeColor;
             titleEl.style.color = '#ffffff'; 
-            
             backBtn.className = "flex items-center gap-1.5 px-3 py-2 bg-white/20 text-white rounded-xl font-bold text-xs backdrop-blur-sm";
             outlinkBtn.className = "p-2 bg-white/20 text-white rounded-xl font-bold text-xs backdrop-blur-sm";
+            if(hideBtn) hideBtn.className = "p-2 bg-white/20 text-white rounded-xl font-bold text-xs backdrop-blur-sm";
         } else {
             header.style.backgroundColor = '#ffffff';
             header.style.borderBottomColor = '#e2e8f0'; 
             titleEl.style.color = '#334155'; 
-            
             backBtn.className = "flex items-center gap-1.5 px-3 py-2 bg-slate-800 text-white rounded-xl font-bold text-xs";
             outlinkBtn.className = "p-2 bg-slate-800 text-white rounded-xl font-bold text-xs";
+            if(hideBtn) hideBtn.className = "p-2 bg-slate-100 text-slate-600 rounded-xl font-bold text-xs";
         }
 
-        document.getElementById('iframe-container').style.display = 'flex';
+        // --- 2. 스마트폰일 때만 상단 배너를 화면 위에 오버레이하여 가립니다 ---
+        if (isPhone) {
+            header.classList.add('absolute');
+            header.classList.remove('relative');
+        } else { // 태블릿과 PC는 가리지 않고 분리
+            header.classList.add('relative');
+            header.classList.remove('absolute');
+        }
+
+        document.getElementById('iframe-container').style.display = 'flex'; 
         document.getElementById('content-iframe').src = targetUrl;
         titleEl.innerText = title;
         document.body.style.overflow = 'hidden';
+
+        if (isPdf) {
+            window.hideViewerHeader();
+        } else {
+            header.style.display = 'flex';
+            document.getElementById('floating-back-btn').classList.add('hidden');
+        }
     };
 
     window.goBack = () => { 
         document.getElementById('content-iframe').src = ''; 
         document.getElementById('iframe-container').style.display = 'none'; 
         document.body.style.overflow = 'auto'; 
+        
+        document.getElementById('viewer-header').style.display = 'flex';
+        document.getElementById('floating-back-btn').classList.add('hidden');
     };
 
     init();

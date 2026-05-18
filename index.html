@@ -124,12 +124,6 @@
             
             <div class="flex items-center gap-1.5">
                 <button id="rsv-btn" class="p-1.5 px-4 bg-[#800020] text-white rounded-xl font-bold text-xs whitespace-nowrap shadow-md tracking-wide">예약</button>
-                <button id="outlink-btn" class="p-2 bg-slate-800 text-white rounded-xl font-bold text-xs" onclick="window.open(window.currentOpenUrl, '_blank')">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
-                </button>
-                <button id="hide-header-btn" class="p-2 bg-slate-100 text-slate-600 rounded-xl font-bold text-xs" onclick="window.hideViewerHeader()" title="넓게 보기">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" /></svg>
-                </button>
             </div>
         </div>
         <iframe id="content-iframe" src="" allow="fullscreen"></iframe>
@@ -191,7 +185,6 @@
 
     window.currentLang = detectDeviceLanguage();
 
-    // 💡 요일(days) 배열과 깔끔한 단어 매핑으로 업데이트
     const i18n = {
         'ko': { open: '영업 중', break: '브레이크', closed: '영업 종료', ready: '영업 준비중', off: '정기 휴무', closeAt: '마감', reopenAt: '영업재개', openAt: '오픈', noInfo: '정보 없음', needSetup: '설정 필요', tmrw: '내일', rsv: '예약', inquiry: '문의', backToMenu: '메뉴 목록으로 돌아가기', breakfast: '조식', lunch: '중식', dinner: '석식', hours24: '24시간 영업', days: ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'] },
         'en': { open: 'Open', break: 'Break', closed: 'Closed', ready: 'Ready', off: 'Off', closeAt: 'Close', reopenAt: 'Reopen', openAt: 'Open', noInfo: 'No Info', needSetup: 'Setup Needed', tmrw: 'Tomorrow', rsv: 'RSVP', inquiry: 'Inquiry', backToMenu: 'Back to Menu', breakfast: 'Breakfast', lunch: 'Lunch', dinner: 'Dinner', hours24: '24 Hours', days: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] },
@@ -243,9 +236,10 @@
             } else if (type === 'deli') {
                 sessions[0] = {label:'', open:'10:00', close:'21:00'};
             } else if (type === 'grandkitchen') {
+                // 💡 그랜드 키친 운영시간 수정: 중식 14:30 종료, 석식 21:30 종료
                 sessions[0] = {label:'breakfast', open:'07:00', close:'11:00'};
-                sessions[1] = {label:'lunch', open:'11:30', close:'15:00'};
-                sessions[2] = {label:'dinner', open:'17:00', close:'22:00'};
+                sessions[1] = {label:'lunch', open:'11:30', close:'14:30'};
+                sessions[2] = {label:'dinner', open:'17:00', close:'21:30'};
             } else if (type === 'yumeyama') {
                 if (i === 1 || i === 2) { 
                     isOff = true;
@@ -437,8 +431,8 @@
             if (!user) return;
             document.getElementById('loading-text').innerText = "데이터 동기화 중...";
 
-            // 💡 데이터 갱신을 위해 'main_v5'으로 버전을 업그레이드했습니다.
-            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'storeConfigs', 'main_v5');
+            // 💡 데이터 갱신을 위해 'main_v6'으로 버전을 업그레이드했습니다.
+            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'storeConfigs', 'main_v6');
             
             onSnapshot(docRef, (docSnap) => {
                 if (docSnap.exists()) {
@@ -465,7 +459,7 @@
 
         window.saveToCloud = async () => {
             if (!auth.currentUser) return;
-            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'storeConfigs', 'main_v5');
+            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'storeConfigs', 'main_v6');
             await setDoc(docRef, { stores: window.stores });
         };
     }
@@ -753,8 +747,6 @@
         const header = document.getElementById('viewer-header');
         const titleEl = document.getElementById('viewer-title');
         const backBtn = document.getElementById('back-btn');
-        const outlinkBtn = document.getElementById('outlink-btn');
-        const hideBtn = document.getElementById('hide-header-btn');
         const rsvBtn = document.getElementById('rsv-btn'); 
         
         if (rsvBtn) {
@@ -773,15 +765,11 @@
             header.style.borderBottomColor = themeColor;
             titleEl.style.color = '#ffffff'; 
             backBtn.className = "flex items-center gap-1.5 px-3 py-2 bg-white/20 text-white rounded-xl font-bold text-xs backdrop-blur-sm";
-            outlinkBtn.className = "p-2 bg-white/20 text-white rounded-xl font-bold text-xs backdrop-blur-sm";
-            if(hideBtn) hideBtn.className = "p-2 bg-white/20 text-white rounded-xl font-bold text-xs backdrop-blur-sm";
         } else {
             header.style.backgroundColor = '#ffffff';
             header.style.borderBottomColor = '#e2e8f0'; 
             titleEl.style.color = '#334155'; 
             backBtn.className = "flex items-center gap-1.5 px-3 py-2 bg-slate-800 text-white rounded-xl font-bold text-xs";
-            outlinkBtn.className = "p-2 bg-slate-800 text-white rounded-xl font-bold text-xs";
-            if(hideBtn) hideBtn.className = "p-2 bg-slate-100 text-slate-600 rounded-xl font-bold text-xs";
         }
 
         // --- 2. 스마트폰일 때만 상단 배너를 화면 위에 오버레이하여 가립니다 ---

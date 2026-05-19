@@ -261,74 +261,75 @@
         ja: `https://www.tablecheck.com/ja/shops/grand-hyatt-jeju-${slug}/reserve`
     });
 
+    // 💡 모든 업장의 전화번호를 국제 표준 규격(+82 10-XXXX-XXXX)으로 변경했습니다.
     const defaultStores = [
         { 
-            id: 1, name: "Gallery Lounge", floor: "L1", themeColor: "#463B33", phone: "010-7470-0839", img: "https://i.postimg.cc/HkLjfYLF/gaelleolilaunji.jpg", weekly: makeWeekly('gallery'),
+            id: 1, name: "Gallery Lounge", floor: "L1", themeColor: "#463B33", phone: "+82 10-7470-0839", img: "https://i.postimg.cc/HkLjfYLF/gaelleolilaunji.jpg", weekly: makeWeekly('gallery'),
             urls: { ko: "https://edit.istay.io/viewer/index.html?site=fbgal#/ko/store/984d8fc9-d58a-4bcf-aed8-1d803a1b32ed/3790ozmo", en: "https://edit.istay.io/viewer/index.html?site=fbgal#/en/store/984d8fc9-d58a-4bcf-aed8-1d803a1b32ed/3790ozmo", "zh-CN": "https://edit.istay.io/viewer/index.html?site=fbgal#/zh-CN/store/984d8fc9-d58a-4bcf-aed8-1d803a1b32ed/3790ozmo", "zh-TW": "https://edit.istay.io/viewer/index.html?site=fbgal#/zh-TW/store/984d8fc9-d58a-4bcf-aed8-1d803a1b32ed/3790ozmo", ja: "https://edit.istay.io/viewer/index.html?site=fbgal#/ja/store/984d8fc9-d58a-4bcf-aed8-1d803a1b32ed/3790ozmo" },
             rsvUrls: makeRsvUrls()
         },
         { 
-            id: 2, name: "99Valley", floor: "L2", themeColor: "#82611c", phone: "010-7470-0743", img: "https://i.postimg.cc/q7c4BfWJ/99-Valley.jpg", weekly: makeWeekly('24h'),
+            id: 2, name: "99Valley", floor: "L2", themeColor: "#82611c", phone: "+82 10-7470-0743", img: "https://i.postimg.cc/q7c4BfWJ/99-Valley.jpg", weekly: makeWeekly('24h'),
             urls: { ko: "https://edit.istay.io/viewer/index.html?site=fb99v#/ko/store/e1635994-e41a-46ca-99bd-08895789001c/7734hio1", en: "https://edit.istay.io/viewer/index.html?site=fb99v#/en/store/e1635994-e41a-46ca-99bd-08895789001c/7734hio1", "zh-CN": "https://edit.istay.io/viewer/index.html?site=fb99v#/zh-CN/store/e1635994-e41a-46ca-99bd-08895789001c/7734hio1", "zh-TW": "https://edit.istay.io/viewer/index.html?site=fb99v#/zh-TW/store/e1635994-e41a-46ca-99bd-08895789001c/7734hio1", ja: "https://edit.istay.io/viewer/index.html?site=fb99v#/ja/store/e1635994-e41a-46ca-99bd-08895789001c/7734hio1" },
             rsvUrls: makeRsvUrls()
         },
         { 
-            id: 3, name: "Noknamu", floor: "L3", themeColor: "#453422", phone: "010-7470-0785", img: "https://i.postimg.cc/XJXHHdfg/nognamu.jpg", weekly: makeWeekly('noknamu'),
+            id: 3, name: "Noknamu", floor: "L3", themeColor: "#453422", phone: "+82 10-7470-0785", img: "https://i.postimg.cc/XJXHHdfg/nognamu.jpg", weekly: makeWeekly('noknamu'),
             urls: { ko: "https://edit.istay.io/viewer/index.html?site=fbnox#/ko/store/3c677ff1-c1c5-4574-8d60-048496ea1cfa/8481tevr", en: "https://edit.istay.io/viewer/index.html?site=fbnox#/en/store/3c677ff1-c1c5-4574-8d60-048496ea1cfa/8481tevr", "zh-CN": "https://edit.istay.io/viewer/index.html?site=fbnox#/zh-CN/store/3c677ff1-c1c5-4574-8d60-048496ea1cfa/8481tevr", "zh-TW": "https://edit.istay.io/viewer/index.html?site=fbnox#/zh-TW/store/3c677ff1-c1c5-4574-8d60-048496ea1cfa/8481tevr", ja: "https://edit.istay.io/viewer/index.html?site=fbnox#/ja/store/3c677ff1-c1c5-4574-8d60-048496ea1cfa/8481tevr" },
             rsvUrls: makeTableCheckUrls('noknamu')
         },
         { 
-            id: 4, name: "China House", floor: "L3", themeColor: "#7c1818", phone: "010-7470-0764", img: "https://i.postimg.cc/263cchQt/chaina-hauseu.jpg", weekly: makeWeekly('china'),
+            id: 4, name: "China House", floor: "L3", themeColor: "#7c1818", phone: "+82 10-7470-0764", img: "https://i.postimg.cc/263cchQt/chaina-hauseu.jpg", weekly: makeWeekly('china'),
             urls: { ko: "https://edit.istay.io/viewer/index.html?site=fbchh#/ko/store/c46b6223-3bec-4fdc-99af-c528378cda08/3295bslj", en: "https://edit.istay.io/viewer/index.html?site=fbchh#/en/store/c46b6223-3bec-4fdc-99af-c528378cda08/3295bslj", "zh-CN": "https://edit.istay.io/viewer/index.html?site=fbchh#/zh-CN/store/c46b6223-3bec-4fdc-99af-c528378cda08/3295bslj", "zh-TW": "https://edit.istay.io/viewer/index.html?site=fbchh#/zh-TW/store/c46b6223-3bec-4fdc-99af-c528378cda08/3295bslj", ja: "https://edit.istay.io/viewer/index.html?site=fbchh#/ja/store/c46b6223-3bec-4fdc-99af-c528378cda08/3295bslj" },
             rsvUrls: makeTableCheckUrls('china-house')
         },
         { 
-            id: 5, name: "Jeju Hotpot", floor: "L3", themeColor: "#820002", phone: "010-7470-0764", img: "https://i.postimg.cc/B6tYYHTd/haspas.jpg", weekly: makeWeekly('hotpot'),
+            id: 5, name: "Jeju Hotpot", floor: "L3", themeColor: "#820002", phone: "+82 10-7470-0764", img: "https://i.postimg.cc/B6tYYHTd/haspas.jpg", weekly: makeWeekly('hotpot'),
             urls: { ko: "https://edit.istay.io/viewer/index.html?site=fbpot#/ko/store/1158ec0a-7ecf-4a5c-a487-1771f53f3502/483150kk", en: "https://edit.istay.io/viewer/index.html?site=fbpot#/en/store/1158ec0a-7ecf-4a5c-a487-1771f53f3502/483150kk", "zh-CN": "https://edit.istay.io/viewer/index.html?site=fbpot#/zh-CN/store/1158ec0a-7ecf-4a5c-a487-1771f53f3502/483150kk", "zh-TW": "https://edit.istay.io/viewer/index.html?site=fbpot#/zh-TW/store/1158ec0a-7ecf-4a5c-a487-1771f53f3502/483150kk", ja: "https://edit.istay.io/viewer/index.html?site=fbpot#/ja/store/1158ec0a-7ecf-4a5c-a487-1771f53f3502/483150kk" },
             rsvUrls: makeTableCheckUrls('hot-pot')
         },
         { 
-            id: 6, name: "Dream Food Court", floor: "L3", themeColor: "#ef942d", phone: "010-7470-0762", img: "https://i.postimg.cc/ydWQQcmj/deulim-pudeukoteu.jpg", weekly: makeWeekly('foodcourt'),
+            id: 6, name: "Dream Food Court", floor: "L3", themeColor: "#ef942d", phone: "+82 10-7470-0762", img: "https://i.postimg.cc/ydWQQcmj/deulim-pudeukoteu.jpg", weekly: makeWeekly('foodcourt'),
             urls: { ko: "https://www.jejudreamtower.com/upload/file/fileresource/2403/17613.pdf", en: "https://www.jejudreamtower.com/upload/file/fileresource/2404/17614.pdf", "zh-CN": "https://www.jejudreamtower.com/upload/file/fileresource/2405/17615.pdf", "zh-TW": "https://www.jejudreamtower.com/upload/file/fileresource/2406/17616.pdf", ja: "https://www.jejudreamtower.com/upload/file/fileresource/2407/17617.pdf" },
             rsvUrls: makeRsvUrls()
         },
         { 
-            id: 7, name: "Grand Kitchen", floor: "L4", themeColor: "#5e5047", phone: "010-7470-0769", img: "https://i.postimg.cc/MG93mdQt/geulaendeu-kichin.jpg", weekly: makeWeekly('grandkitchen'),
+            id: 7, name: "Grand Kitchen", floor: "L4", themeColor: "#5e5047", phone: "+82 10-7470-0769", img: "https://i.postimg.cc/MG93mdQt/geulaendeu-kichin.jpg", weekly: makeWeekly('grandkitchen'),
             urls: { ko: "https://www.jejudreamtower.com/upload/file/fileresource/965/17618.pdf", en: "https://www.jejudreamtower.com/upload/file/fileresource/966/17619.pdf", "zh-CN": "https://www.jejudreamtower.com/upload/file/fileresource/967/17620.pdf", "zh-TW": "https://www.jejudreamtower.com/upload/file/fileresource/2232/17622.pdf", ja: "https://www.jejudreamtower.com/upload/file/fileresource/1300/17621.pdf" },
             rsvUrls: makeTableCheckUrls('grand-kitchen')
         },
         { 
-            id: 8, name: "Deli", floor: "L4", themeColor: "#90b2af", phone: "010-7470-0782", img: "https://i.postimg.cc/Kz4qqBPD/delli.jpg", weekly: makeWeekly('deli'),
+            id: 8, name: "Deli", floor: "L4", themeColor: "#90b2af", phone: "+82 10-7470-0782", img: "https://i.postimg.cc/Kz4qqBPD/delli.jpg", weekly: makeWeekly('deli'),
             urls: { ko: "https://www.jejudreamtower.com/upload/file/fileresource/959/17523.pdf", en: "https://www.jejudreamtower.com/upload/file/fileresource/960/17524.pdf", "zh-CN": "https://www.jejudreamtower.com/upload/file/fileresource/961/17525.pdf", "zh-TW": "https://www.jejudreamtower.com/upload/file/fileresource/2230/17527.pdf", ja: "https://www.jejudreamtower.com/upload/file/fileresource/2118/17526.pdf" },
             rsvUrls: makeRsvUrls()
         },
         { 
-            id: 9, name: "Yumeyama", floor: "L4", themeColor: "#031d42", phone: "010-7470-0837", img: "https://i.postimg.cc/76bss03W/yumeyama.jpg", weekly: makeWeekly('yumeyama'),
+            id: 9, name: "Yumeyama", floor: "L4", themeColor: "#031d42", phone: "+82 10-7470-0837", img: "https://i.postimg.cc/76bss03W/yumeyama.jpg", weekly: makeWeekly('yumeyama'),
             urls: { ko: "https://edit.istay.io/viewer/index.html?site=fbyum#/ko/store/d3a3203c-c733-49e0-a395-7109edb5c528/7560zc5b", en: "https://edit.istay.io/viewer/index.html?site=fbyum#/en/store/d3a3203c-c733-49e0-a395-7109edb5c528/7560zc5b", "zh-CN": "https://edit.istay.io/viewer/index.html?site=fbyum#/zh-CN/store/d3a3203c-c733-49e0-a395-7109edb5c528/7560zc5b", "zh-TW": "https://edit.istay.io/viewer/index.html?site=fbyum#/zh-TW/store/d3a3203c-c733-49e0-a395-7109edb5c528/7560zc5b", ja: "https://edit.istay.io/viewer/index.html?site=fbyum#/ja/store/d3a3203c-c733-49e0-a395-7109edb5c528/7560zc5b" },
             rsvUrls: makeTableCheckUrls('yumeyama')
         },
         { 
-            id: 10, name: "The 88", floor: "L8", themeColor: "#8dad21", phone: "010-7470-0892", img: "https://i.postimg.cc/LsxQ3N1y/deo-88.jpg", weekly: makeWeekly('88'),
+            id: 10, name: "The 88", floor: "L8", themeColor: "#8dad21", phone: "+82 10-7470-0892", img: "https://i.postimg.cc/LsxQ3N1y/deo-88.jpg", weekly: makeWeekly('88'),
             urls: { ko: "https://edit.istay.io/viewer/index.html?site=fbcaf#/ko/store/c11f69b7-2b3f-44d8-a767-938340977a33/1265f4rr", en: "https://edit.istay.io/viewer/index.html?site=fbcaf#/en/store/c11f69b7-2b3f-44d8-a767-938340977a33/1265f4rr", "zh-CN": "https://edit.istay.io/viewer/index.html?site=fbcaf#/zh-CN/store/c11f69b7-2b3f-44d8-a767-938340977a33/1265f4rr", "zh-TW": "https://edit.istay.io/viewer/index.html?site=fbcaf#/zh-TW/store/c11f69b7-2b3f-44d8-a767-938340977a33/1265f4rr", ja: "https://edit.istay.io/viewer/index.html?site=fbcaf#/ja/store/c11f69b7-2b3f-44d8-a767-938340977a33/1265f4rr" },
             rsvUrls: makeTableCheckUrls('cafe-8')
         },
         { 
-            id: 11, name: "The 88 Terrace", floor: "L8", themeColor: "#8dad21", phone: "010-7470-0892", img: "https://i.postimg.cc/k5TYvfbf/deo-88-telaseu.jpg", weekly: makeWeekly('88'),
+            id: 11, name: "The 88 Terrace", floor: "L8", themeColor: "#8dad21", phone: "+82 10-7470-0892", img: "https://i.postimg.cc/k5TYvfbf/deo-88-telaseu.jpg", weekly: makeWeekly('88'),
             urls: { ko: "https://edit.istay.io/viewer/index.html?site=fbcaf#/ko/store/c88f0b25-462a-470d-a86e-52c3a2f1fac0/6704y042", en: "https://edit.istay.io/viewer/index.html?site=fbcaf#/en/store/c88f0b25-462a-470d-a86e-52c3a2f1fac0/6704y042", "zh-CN": "https://edit.istay.io/viewer/index.html?site=fbcaf#/zh-CN/store/c88f0b25-462a-470d-a86e-52c3a2f1fac0/6704y042", "zh-TW": "https://edit.istay.io/viewer/index.html?site=fbcaf#/zh-TW/store/c88f0b25-462a-470d-a86e-52c3a2f1fac0/6704y042", ja: "https://edit.istay.io/viewer/index.html?site=fbcaf#/ja/store/c88f0b25-462a-470d-a86e-52c3a2f1fac0/6704y042" },
             rsvUrls: makeTableCheckUrls('cafe-8')
         },
         { 
-            id: 12, name: "Lounge 38", floor: "L38", themeColor: "#77582c", phone: "010-7470-0749", img: "https://i.postimg.cc/TwbM4V0Y/launji-38.jpg", weekly: makeWeekly('lounge38'),
+            id: 12, name: "Lounge 38", floor: "L38", themeColor: "#77582c", phone: "+82 10-7470-0749", img: "https://i.postimg.cc/TwbM4V0Y/launji-38.jpg", weekly: makeWeekly('lounge38'),
             urls: { ko: "https://edit.istay.io/viewer/index.html?site=fbl38#/ko/store/2db5dc63-bd21-4244-8892-fb3eca8f5e8d/4809kmhi", en: "https://edit.istay.io/viewer/index.html?site=fbl38#/en/store/2db5dc63-bd21-4244-8892-fb3eca8f5e8d/4809kmhi", "zh-CN": "https://edit.istay.io/viewer/index.html?site=fbl38#/zh-CN/store/2db5dc63-bd21-4244-8892-fb3eca8f5e8d/4809kmhi", "zh-TW": "https://edit.istay.io/viewer/index.html?site=fbl38#/zh-TW/store/2db5dc63-bd21-4244-8892-fb3eca8f5e8d/4809kmhi", ja: "https://edit.istay.io/viewer/index.html?site=fbl38#/ja/store/2db5dc63-bd21-4244-8892-fb3eca8f5e8d/4809kmhi" },
             rsvUrls: makeTableCheckUrls('lounge-38')
         },
         { 
-            id: 13, name: "Blue Dragon", floor: "L38", themeColor: "#031d42", phone: "010-7470-0761", img: "https://i.postimg.cc/9Mz88Zd8/beulludeulaegon.jpg", weekly: makeWeekly('bluedragon'),
+            id: 13, name: "Blue Dragon", floor: "L38", themeColor: "#031d42", phone: "+82 10-7470-0761", img: "https://i.postimg.cc/9Mz88Zd8/beulludeulaegon.jpg", weekly: makeWeekly('bluedragon'),
             urls: { ko: "https://edit.istay.io/viewer/index.html?site=fbbdg#/ko/store/ef3b1278-b47c-49e6-aa8b-d2ca2746c32c/86042d2h", en: "https://edit.istay.io/viewer/index.html?site=fbbdg#/en/store/ef3b1278-b47c-49e6-aa8b-d2ca2746c32c/86042d2h", "zh-CN": "https://edit.istay.io/viewer/index.html?site=fbbdg#/zh-CN/store/ef3b1278-b47c-49e6-aa8b-d2ca2746c32c/86042d2h", "zh-TW": "https://edit.istay.io/viewer/index.html?site=fbbdg#/zh-TW/store/ef3b1278-b47c-49e6-aa8b-d2ca2746c32c/86042d2h", ja: "https://edit.istay.io/viewer/index.html?site=fbbdg#/ja/store/ef3b1278-b47c-49e6-aa8b-d2ca2746c32c/86042d2h" },
             rsvUrls: makeTableCheckUrls('blue-dragon')
         },
         { 
-            id: 14, name: "Pocha", floor: "L38", themeColor: "#c23c61", phone: "010-7470-0754", img: "https://i.postimg.cc/vBDqqfrj/pocha.jpg", weekly: makeWeekly('pocha'),
+            id: 14, name: "Pocha", floor: "L38", themeColor: "#c23c61", phone: "+82 10-7470-0754", img: "https://i.postimg.cc/vBDqqfrj/pocha.jpg", weekly: makeWeekly('pocha'),
             urls: { ko: "https://edit.istay.io/viewer/index.html?site=fbcha#/ko/store/85ac8f34-f6af-4e1a-9561-10c277c8e7e1/5699dovg", en: "https://edit.istay.io/viewer/index.html?site=fbcha#/en/store/85ac8f34-f6af-4e1a-9561-10c277c8e7e1/5699dovg", "zh-CN": "https://edit.istay.io/viewer/index.html?site=fbcha#/zh-CN/store/85ac8f34-f6af-4e1a-9561-10c277c8e7e1/5699dovg", "zh-TW": "https://edit.istay.io/viewer/index.html?site=fbcha#/zh-TW/store/85ac8f34-f6af-4e1a-9561-10c277c8e7e1/5699dovg", ja: "https://edit.istay.io/viewer/index.html?site=fbcha#/ja/store/85ac8f34-f6af-4e1a-9561-10c277c8e7e1/5699dovg" },
             rsvUrls: makeTableCheckUrls('pocha')
         },
@@ -383,8 +384,8 @@
             if (!user) return;
             document.getElementById('loading-text').innerText = "데이터 동기화 중...";
 
-            // 💡 데이터 갱신을 위해 'main_v14'으로 버전을 업그레이드했습니다.
-            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'storeConfigs', 'main_v14');
+            // 💡 데이터 갱신을 위해 'main_v15'으로 버전을 업그레이드했습니다.
+            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'storeConfigs', 'main_v15');
             
             onSnapshot(docRef, (docSnap) => {
                 if (docSnap.exists()) {
@@ -411,7 +412,7 @@
 
         window.saveToCloud = async () => {
             if (!auth.currentUser) return;
-            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'storeConfigs', 'main_v14');
+            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'storeConfigs', 'main_v15');
             await setDoc(docRef, { stores: window.stores });
         };
     }

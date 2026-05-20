@@ -23,7 +23,7 @@
             display: flex;
             justify-content: center;
             overflow-x: hidden;
-            overscroll-behavior-y: none; /* 고무줄 스크롤 현상 방지 */
+            overscroll-behavior-y: none;
         }
 
         #app-shell {
@@ -58,7 +58,6 @@
             overflow: hidden;
         }
         
-        /* 💡 PDF 뷰어 iframe 스타일 보강: 상단 배너와 겹쳐서 잘리지 않도록 배치 구조 최적화 */
         #content-iframe { 
             width: 100%; 
             height: 100%; 
@@ -67,12 +66,6 @@
             -webkit-overflow-scrolling: touch; 
             display: block;
             box-sizing: border-box;
-        }
-
-        /* 💡 PDF 전용 탑 마진 클래스: 요청하신 대로 56픽셀 더 내렸습니다! (56 + 56 = 112px) */
-        .pdf-shift-down {
-            margin-top: 112px;
-            height: calc(100% - 112px) !important;
         }
 
         .status-open { background-color: #22c55e; color: white; }
@@ -426,8 +419,8 @@
             if (!user) return;
             document.getElementById('loading-text').innerText = "데이터 동기화 중...";
 
-            // 💡 데이터 갱신 및 배너 짤림 현상 수정을 위해 'main_v16'으로 버전을 업그레이드했습니다.
-            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'storeConfigs', 'main_v16');
+            // 💡 데이터 갱신 및 그랜드 키친 첫 화면 짤림 수정을 위해 'main_v17'로 버전을 업그레이드했습니다.
+            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'storeConfigs', 'main_v17');
             
             onSnapshot(docRef, (docSnap) => {
                 if (docSnap.exists()) {
@@ -454,7 +447,7 @@
 
         window.saveToCloud = async () => {
             if (!auth.currentUser) return;
-            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'storeConfigs', 'main_v16');
+            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'storeConfigs', 'main_v17');
             await setDoc(docRef, { stores: window.stores });
         };
     }
@@ -751,8 +744,9 @@
         const floorText = lang === 'ko' ? '4층' : (lang === 'ja' ? '4階' : (lang === 'zh-CN' || lang === 'zh-TW' ? '4楼' : 'Level 4'));
 
         view.innerHTML = `
-            <div class="w-full h-full overflow-y-auto bg-white flex flex-col pb-24 relative">
-                <div class="max-w-4xl mx-auto w-full px-5 pt-8 md:pt-12 flex flex-col items-center text-center">
+            <!-- 💡 pt-[56px] 를 추가하여 상단 배너에 화면이 가리지 않고 아래서부터 온전히 그려지도록 수정했습니다. -->
+            <div class="w-full h-full overflow-y-auto bg-white flex flex-col pb-24 relative pt-[56px]">
+                <div class="max-w-4xl mx-auto w-full px-5 pt-8 flex flex-col items-center text-center">
                     
                     <div class="mb-6 flex flex-col items-center justify-center w-full overflow-visible">
                         <span class="text-[22px] md:text-2xl font-semibold text-[#6d645e] tracking-[0.3em] leading-normal mb-1 whitespace-nowrap pl-[0.3em]">GRAND</span>
@@ -811,10 +805,9 @@
         document.getElementById('custom-store-view').classList.add('hidden');
         document.getElementById('custom-store-view').style.display = 'none';
         
-        // 💡 짤림 해결 포인트: 그랜드 키친 PDF를 열 때 iframe에 마진 속성을 부여해 배너 아래로 내려가도록 조치
+        // 💡 PDF 화면은 이전 상태로 완벽 복구
         const iframe = document.getElementById('content-iframe');
         iframe.classList.remove('hidden');
-        iframe.classList.add('pdf-shift-down'); 
         iframe.style.display = 'block'; 
         iframe.src = iframeUrl;
     };
@@ -884,7 +877,7 @@
             backBtn.className = "flex items-center gap-1.5 px-3 py-2 bg-slate-800 text-white rounded-xl font-bold text-xs";
         }
 
-        if (isPhone && store.id !== 15) {
+        if (isPhone && store.id !== 15 && store.id !== 7) {
             header.classList.add('absolute');
             header.classList.remove('relative');
         } else {
@@ -902,9 +895,7 @@
 
         document.getElementById('iframe-container').style.display = 'flex'; 
         
-        // 💡 다른 업장의 일반 PDF는 배너가 absolute로 위에 뜰 수 있으므로 마진을 빼줍니다.
         const iframe = document.getElementById('content-iframe');
-        iframe.classList.remove('pdf-shift-down');
 
         if (store.id === 7) {
             window.renderGrandKitchen(targetUrl);
@@ -930,7 +921,6 @@
         const iframe = document.getElementById('content-iframe');
         iframe.src = ''; 
         iframe.classList.remove('hidden');
-        iframe.classList.remove('pdf-shift-down'); // 💡 뒤로 갈 때 클래스 클리어
         iframe.style.display = 'block'; 
         document.getElementById('custom-store-view').classList.add('hidden');
         document.getElementById('custom-store-view').style.display = 'none';

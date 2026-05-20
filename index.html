@@ -749,10 +749,11 @@
             <div class="w-full h-full overflow-y-auto bg-white flex flex-col pb-24 relative">
                 <div class="max-w-4xl mx-auto w-full px-5 pt-8 md:pt-12 flex flex-col items-center text-center">
                     
-                    <div class="mb-6 flex flex-col items-center justify-center">
-                        <span class="text-xl md:text-2xl font-semibold text-[#6d645e] tracking-[0.25em] leading-tight mb-1">GRAND</span>
-                        <span class="text-4xl md:text-5xl font-light text-[#b3aaa3] tracking-[0.1em] leading-tight mb-2" style="font-family: Arial, sans-serif;">KITCHEN</span>
-                        <span class="text-3xl md:text-4xl text-[#6d645e] tracking-widest" style="font-family: 'Noto Serif KR', serif;">悦厨</span>
+                    <!-- 💡 로고 텍스트가 절대 잘리거나 줄바꿈되지 않도록 whitespace-nowrap 및 패딩(여백) 추가 -->
+                    <div class="mb-6 flex flex-col items-center justify-center w-full overflow-visible">
+                        <span class="text-[22px] md:text-2xl font-semibold text-[#6d645e] tracking-[0.3em] leading-normal mb-1 whitespace-nowrap pl-[0.3em]">GRAND</span>
+                        <span class="text-[34px] md:text-5xl font-light text-[#b3aaa3] tracking-[0.1em] leading-none mb-3 whitespace-nowrap pl-[0.1em]" style="font-family: Arial, sans-serif;">KITCHEN</span>
+                        <span class="text-3xl md:text-4xl text-[#6d645e] tracking-[0.2em] leading-normal whitespace-nowrap pl-[0.2em]" style="font-family: 'Noto Serif KR', serif;">悦厨</span>
                     </div>
                     
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full text-slate-800 border-t border-b border-gray-100 py-6 mb-6">

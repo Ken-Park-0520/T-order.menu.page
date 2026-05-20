@@ -6,7 +6,6 @@
     <title>Grand Hyatt Jeju F&B</title>
     <meta name="theme-color" content="#800020">
     
-    <!-- PWA 앱 아이콘 설정 -->
     <link rel="apple-touch-icon" href="./CJUGH_L006c-stk-TM-color-bg-RGB.png">
     <link rel="manifest" href="./manifest.json">
     
@@ -33,7 +32,7 @@
             display: flex;
             flex-direction: column;
             min-height: 100vh;
-            transition: opacity 0.2s ease; /* 숨김 처리 시 부드럽게 */
+            transition: opacity 0.2s ease;
         }
 
         .auto-grid {
@@ -59,7 +58,22 @@
             overflow: hidden;
         }
         
-        #content-iframe { width: 100%; height: 100%; flex: 1; border: none; -webkit-overflow-scrolling: touch; display: block; }
+        /* 💡 PDF 뷰어 iframe 스타일 보강: 상단 배너와 겹쳐서 잘리지 않도록 배치 구조 최적화 */
+        #content-iframe { 
+            width: 100%; 
+            height: 100%; 
+            flex: 1; 
+            border: none; 
+            -webkit-overflow-scrolling: touch; 
+            display: block;
+            box-sizing: border-box;
+        }
+
+        /* 💡 PDF 전용 탑 마진 클래스: 배너 높이(56px)만큼 강제로 아래로 밀어줌 */
+        .pdf-shift-down {
+            margin-top: 56px;
+            height: calc(100% - 56px) !important;
+        }
 
         .status-open { background-color: #22c55e; color: white; }
         .status-break { background-color: #f59e0b; color: white; }
@@ -101,7 +115,6 @@
         
         <div class="flex flex-col items-end justify-center w-1/3 gap-1">
             <div class="flex items-center justify-end gap-1.5">
-                <!-- 💡 공유 버튼을 텍스트에서 직관적인 QR 아이콘으로 변경했습니다. -->
                 <button onclick="window.openQrModal()" class="p-1.5 border border-slate-200 rounded-lg text-slate-600 bg-white hover:bg-slate-50 transition-colors shadow-sm flex items-center justify-center" title="QR 공유">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <rect x="3" y="3" width="7" height="7" rx="1"/>
@@ -127,9 +140,8 @@
     <main id="menu-screen" class="flex-1 overflow-y-auto p-4 md:p-8 hide-scrollbar">
         <div id="store-grid" class="auto-grid max-w-7xl mx-auto"></div>
     </main>
-</div> <!-- 💡 app-shell을 여기서 먼저 닫습니다! (이전에는 파일 맨 아래 쪽에 있어서 iframe까지 같이 투명해지는 버그가 발생함) -->
+</div>
 
-<!-- 💡 app-shell 밖으로 꺼내서 메인 화면이 투명해져도 메뉴판은 100% 잘 보이도록 분리 -->
 <div id="iframe-container">
     <div id="viewer-header" class="top-0 left-0 w-full h-14 bg-white border-b flex items-center justify-between px-4 z-20 shadow-sm transition-colors shrink-0">
         <button id="back-btn" class="flex items-center gap-1.5 px-3 py-2 bg-slate-800 text-white rounded-xl font-bold text-xs" onclick="window.goBack()">
@@ -146,7 +158,6 @@
     
     <iframe id="content-iframe" src="" allow="fullscreen"></iframe>
     
-    <!-- 커스텀 뷰 컨테이너 -->
     <div id="custom-store-view" class="hidden flex-1 relative bg-white flex-col overflow-hidden"></div>
 </div>
 
@@ -155,20 +166,16 @@
     <span id="floating-back-text" class="font-bold text-[13px] tracking-wide whitespace-nowrap">메뉴 목록으로 돌아가기</span>
 </button>
 
-<!-- 💡 QR 공유 모달창 (반투명 백그라운드 & 애니메이션) -->
 <div id="qr-modal" class="hidden fixed inset-0 z-[200] flex items-center justify-center p-6 bg-black/60 backdrop-blur-sm transition-opacity opacity-0" onclick="window.closeQrModal()">
     <div class="bg-white p-8 rounded-[2rem] shadow-2xl text-center w-full max-w-sm border border-slate-200 transform scale-95 transition-transform duration-300 relative" onclick="event.stopPropagation()">
-        <!-- 상단 닫기 아이콘 -->
         <button onclick="window.closeQrModal()" class="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-700 bg-slate-100 rounded-full">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" /></svg>
         </button>
         
-        <!-- 💡 모달창 타이틀 텍스트 '페이지 공유'로 수정 -->
         <h3 id="qr-title" class="text-xl font-black mb-2 text-slate-800 tracking-tight mt-2">페이지 공유</h3>
         <p id="qr-desc" class="text-xs font-bold text-slate-500 mb-6 break-keep">스마트폰 카메라로 QR 코드를 스캔하세요.</p>
         
         <div class="bg-white border-2 border-slate-100 p-3 rounded-2xl mb-6 flex justify-center shadow-inner">
-            <!-- ⚠️ 주의: 깃허브에 'qr.jpg'라는 이름으로 이미지를 올리셔야 합니다! -->
             <img src="./qr.jpg" alt="QR Code" class="w-56 h-56 object-contain rounded-xl">
         </div>
         
@@ -211,7 +218,7 @@
     window.isAdmin = false;
     window.currentOpenUrl = "";
     window.editingDay = new Date().getDay();
-    window.mainScrollPos = 0; // 💡 스크롤 방지를 위한 변수 추가
+    window.mainScrollPos = 0; 
 
     const detectDeviceLanguage = () => {
         const lang = navigator.language || navigator.userLanguage || 'ko';
@@ -227,12 +234,11 @@
 
     window.currentLang = detectDeviceLanguage();
 
-    // 💡 QR 관련 번역 텍스트 추가 (qrTitle 변경 및 share 텍스트 추가)
     const i18n = {
         'ko': { open: '영업 중', break: '브레이크', closed: '영업 종료', ready: '영업 준비중', off: '정기 휴무', closeAt: '마감', reopenAt: '영업재개', openAt: '오픈', noInfo: '정보 없음', needSetup: '설정 필요', tmrw: '내일', rsv: '예약', inquiry: '문의', order: '문의/주문', backToMenu: '메뉴 목록으로 돌아가기', breakfast: '아침', lunch: '점심', dinner: '저녁', hours24: '24시간 영업', days: ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'], viewMenu: '메뉴 보기', selectAction: '원하시는 항목을 선택해 주세요.', adult: '성인', child: '아동', childAge: '*아동: 만 6세 이상 ~ 12세 이하', locationLabel: '위치', bevMenu: '음료 메뉴 보기', descGK: '마카오 윈팰리스 폰타나 뷔페에서 총괄 셰프로 일한 스타셰프 민이 제주의 제철 재료로 다채로운 글로벌 메뉴를 선보입니다. 10여 가지 육류와 해산물을 즉석에서 구워주는 그릴 스테이션, 신선한 스시와 사시미를 맛볼 수 있는 씨푸드 스테이션 등 7개의 라이브 쿠킹 스테이션에서 미식의 즐거움을 경험하세요.', backBtn: '뒤로', mainPage: '메인 페이지', qrTitle: '페이지 공유', qrDesc: '스마트폰 카메라로 QR 코드를 스캔하세요.', close: '닫기', share: '공유' },
         'en': { open: 'Open', break: 'Break', closed: 'Closed', ready: 'Ready', off: 'Off', closeAt: 'Close', reopenAt: 'Reopen', openAt: 'Open', noInfo: 'No Info', needSetup: 'Setup Needed', tmrw: 'Tomorrow', rsv: 'RSVP', inquiry: 'Inquiry', order: 'Order/Inquiry', backToMenu: 'Back to Menu', breakfast: 'Breakfast', lunch: 'Lunch', dinner: 'Dinner', hours24: '24 Hours', days: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], viewMenu: 'View Menu', selectAction: 'Please select an option.', adult: 'Adult', child: 'Child', childAge: '*Child: 6-12 years old', locationLabel: 'Location', bevMenu: 'View Beverage Menu', descGK: 'Star chef Min, former executive chef at Fontana Buffet in Wynn Palace Macau, presents a diverse global menu using seasonal ingredients from Jeju. Experience gastronomic delight at 7 live cooking stations, including a grill station with over 10 types of meat and seafood roasted on the spot, and a seafood station with fresh sushi and sashimi.', backBtn: 'Back', mainPage: 'Main Page', qrTitle: 'Share Page', qrDesc: 'Scan the QR code with your smartphone camera.', close: 'Close', share: 'Share' },
-        'ja': { open: '営業中', break: '休憩', closed: '営業終了', ready: '準備中', off: '定休日', closeAt: '終了', reopenAt: '営業再開', openAt: '開始', noInfo: '情報なし', needSetup: '設定必要', tmrw: '明日', rsv: '予約', inquiry: 'お問い合わせ', order: 'ご注文/お問い合わせ', backToMenu: 'メニューに戻る', breakfast: '朝食', lunch: '昼食', dinner: '夕食', hours24: '24時間営業', days: ['日曜日', '月曜日', '火曜日', '水曜日', '木曜日', '金曜日', '土曜日'], viewMenu: 'メニューを見る', selectAction: 'ご希望の項目を選択してください。', adult: '大人', child: '小人', childAge: '※小人：満6歳以上～12歳以下', locationLabel: '場所', bevMenu: 'ドリンクメニューを見る', descGK: 'マカオのウィンパレス「フォンタナビュッフェ」で総料理長を務めたスターシェフ、ミンが、済州の旬の食材を使った多彩なグローバルメニューをお届けします。10種類以上の肉やシーフードを目の前で焼き上げるグリルステーションや、新鮮な寿司や刺身を味わえるシーフードステーションなど、7つのライブクッキングステーションで美食の喜びをご体験ください。', backBtn: '戻る', mainPage: 'メインページ', qrTitle: 'ページ共有', qrDesc: 'スマートフォンのカメラでQRコードをスキャンしてください。', close: '閉じる', share: '共有' },
-        'zh-CN': { open: '营业中', break: '休息', closed: '已打烊', ready: '准备中', off: '休息日', closeAt: '结束', reopenAt: '重新营业', openAt: '开始', noInfo: '无信息', needSetup: '需要设置', tmrw: '明天', rsv: '预订', inquiry: '咨询', order: '点餐/咨询', backToMenu: '返回菜单', breakfast: '早餐', lunch: '午餐', dinner: '晚餐', hours24: '24小时营业', days: ['周日', '周一', '周二', '周三', '周四', '周五', '周六'], viewMenu: '查看菜单', selectAction: '请选择您需要的服务。', adult: '成人', child: '儿童', childAge: '*儿童：满6岁至12岁', locationLabel: '位置', bevMenu: '查看酒水菜单', descGK: '曾在澳门永利皇宫“咖啡苑”担任行政总厨的明星主厨 Min，使用济州应季食材，为您呈现丰富多彩的全球美食。这里有为您现场烤制10余种肉类和海鲜的烧烤档、可品尝新鲜寿司和生鱼片的海鲜档等，共有7个现场烹饪台，让您尽享美食之乐。', backBtn: '返回', mainPage: '主页', qrTitle: '分享页面', qrDesc: '请用智能手机相机扫描二维码。', close: '关闭', share: '分享' },
+        'ja': { open: '営業中', break: '休憩', closed: '営業終了', ready: '準備中', off: '定休日', closeAt: '終了', reopenAt: '営業再開', openAt: '開始', noInfo: '情報なし', needSetup: '設定必要', tmrw: '明日', rsv: '予約', inquiry: 'お問い合わせ', order: 'ご注文/お問い合わせ', backToMenu: 'メニューに戻る', breakfast: '朝食', lunch: '昼食', dinner: '夕食', hours24: '24時間営業', days: ['日曜日', '月曜日', '火曜日', '水曜日', '木曜日', '金曜日', '土曜日'], viewMenu: 'メニューを見る', selectAction: 'ご希望의 項目を選択してください。', adult: '大人', child: '小人', childAge: '※小人：満6歳以上～12歳以下', locationLabel: '場所', bevMenu: 'ドリンクメニューを見る', descGK: 'マカオのウィンパレス「フォンタナビュッフェ」で総料理長を務めたスターシェフ、ミンが、済州の旬の食材を使った多彩なグローバルメニューをお届けします。10種類以上の肉やシーフードを目の前で焼き上げるグリルステーションや、新鮮な寿司や刺身を味わえるシーフードステーションなど、7つのライブクッキングステーションで美食の喜びをご体験ください。', backBtn: '戻る', mainPage: 'メインページ', qrTitle: 'ページ共有', qrDesc: 'スマートフォンのカメラでQRコードをスキャンしてください。', close: '閉じる', share: '共有' },
+        'zh-CN': { open: '营业中', break: '休息', closed: '已打烊', ready: '准备中', off: '休息日', closeAt: '结束', reopenAt: '重新营业', openAt: '开始', noInfo: '无信息', needSetup: '需要设置', tmrw: '明天', rsv: '预订', inquiry: '咨询', order: '点餐/咨询', backToMenu: '返回菜单', breakfast: '早餐', lunch: '午餐', dinner: '晚餐', hours24: '24小时营业', days: ['周日', '周一', '周二', '周三', '周四', '周五', '周六'], viewMenu: '查看菜单', selectAction: '请选择您需要的服务。', adult: '成人', child: '儿童', childAge: '*儿童：满6岁至12岁', locationLabel: '位置', bevMenu: '查看酒水菜单', descGK: '曾在澳门永利皇宫“咖啡苑”担任行政总厨的明星主厨 Min，使用济州应季食材，为您呈现丰富多彩的全球美食。这里有为您现场烤制10余种肉类 and 海鲜的烧烤档、可品尝新鲜寿司和生鱼片的海鲜档等，共有7个现场烹饪台，让您尽享美食之乐。', backBtn: '返回', mainPage: '主页', qrTitle: '分享页面', qrDesc: '请用智能手机相机扫描二维码。', close: '关闭', share: '分享' },
         'zh-TW': { open: '營業中', break: '休息', closed: '已打烊', ready: '準備中', off: '休息日', closeAt: '結束', reopenAt: '重新營業', openAt: '開始', noInfo: '無資訊', needSetup: '需要設置', tmrw: '明天', rsv: '預訂', inquiry: '諮詢', order: '點餐/諮詢', backToMenu: '返回菜單', breakfast: '早餐', lunch: '午餐', dinner: '晚餐', hours24: '24小時營業', days: ['週日', '週一', '週二', '週三', '週四', '週五', '週六'], viewMenu: '查看菜單', selectAction: '請選擇您需要的服務。', adult: '成人', child: '兒童', childAge: '*兒童：滿6歲至12歲', locationLabel: '位置', bevMenu: '查看酒水菜單', descGK: '曾在澳門永利皇宮「咖啡苑」擔任行政總廚的明星主廚 Min，使用濟州當季食材，為您呈現豐富多彩的全球美食。這裡有為您現場烤製10餘種肉類和海鮮的燒烤區、可品嚐新鮮壽司和生魚片的海鮮區等，共有7個現場烹飪區，讓您盡享美食之樂。', backBtn: '返回', mainPage: '主頁', qrTitle: '分享頁面', qrDesc: '請用智慧型手機相機掃描行動條碼。', close: '關閉', share: '分享' }
     };
 
@@ -420,7 +426,7 @@
             if (!user) return;
             document.getElementById('loading-text').innerText = "데이터 동기화 중...";
 
-            // 💡 데이터 갱신을 위해 'main_v16'으로 버전을 업그레이드했습니다.
+            // 💡 데이터 갱신 및 배너 짤림 현상 수정을 위해 'main_v16'으로 버전을 업그레이드했습니다.
             const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'storeConfigs', 'main_v16');
             
             onSnapshot(docRef, (docSnap) => {
@@ -685,7 +691,6 @@
         render(); 
     };
     
-    // 💡 QR 공유 모달 제어 로직
     window.openQrModal = () => {
         const lang = window.currentLang;
         document.getElementById('qr-title').innerText = i18n[lang].qrTitle;
@@ -749,7 +754,6 @@
             <div class="w-full h-full overflow-y-auto bg-white flex flex-col pb-24 relative">
                 <div class="max-w-4xl mx-auto w-full px-5 pt-8 md:pt-12 flex flex-col items-center text-center">
                     
-                    <!-- 💡 로고 텍스트가 절대 잘리거나 줄바꿈되지 않도록 whitespace-nowrap 및 패딩(여백) 추가 -->
                     <div class="mb-6 flex flex-col items-center justify-center w-full overflow-visible">
                         <span class="text-[22px] md:text-2xl font-semibold text-[#6d645e] tracking-[0.3em] leading-normal mb-1 whitespace-nowrap pl-[0.3em]">GRAND</span>
                         <span class="text-[34px] md:text-5xl font-light text-[#b3aaa3] tracking-[0.1em] leading-none mb-3 whitespace-nowrap pl-[0.1em]" style="font-family: Arial, sans-serif;">KITCHEN</span>
@@ -807,9 +811,12 @@
         document.getElementById('custom-store-view').classList.add('hidden');
         document.getElementById('custom-store-view').style.display = 'none';
         
-        document.getElementById('content-iframe').classList.remove('hidden');
-        document.getElementById('content-iframe').style.display = 'block'; 
-        document.getElementById('content-iframe').src = iframeUrl;
+        // 💡 짤림 해결 포인트: 그랜드 키친 PDF를 열 때 iframe에 마진 속성을 부여해 배너 아래로 내려가도록 조치
+        const iframe = document.getElementById('content-iframe');
+        iframe.classList.remove('hidden');
+        iframe.classList.add('pdf-shift-down'); 
+        iframe.style.display = 'block'; 
+        iframe.src = iframeUrl;
     };
 
     window.openLink = (sIdx) => {
@@ -885,29 +892,32 @@
             header.classList.remove('absolute');
         }
 
-        // 💡 메인 페이지 스크롤 강제 고정 및 숨김 처리 (iOS 사파리 버그 완벽 차단)
         window.mainScrollPos = window.scrollY || document.documentElement.scrollTop;
         document.body.style.position = 'fixed';
         document.body.style.top = `-${window.mainScrollPos}px`;
         document.body.style.width = '100%';
         document.body.style.backgroundColor = '#ffffff';
         document.getElementById('app-shell').style.opacity = '0'; 
-        document.getElementById('app-shell').style.pointerEvents = 'none'; // 💡 백그라운드 클릭 간섭 차단
+        document.getElementById('app-shell').style.pointerEvents = 'none'; 
 
         document.getElementById('iframe-container').style.display = 'flex'; 
         
+        // 💡 다른 업장의 일반 PDF는 배너가 absolute로 위에 뜰 수 있으므로 마진을 빼줍니다.
+        const iframe = document.getElementById('content-iframe');
+        iframe.classList.remove('pdf-shift-down');
+
         if (store.id === 7) {
             window.renderGrandKitchen(targetUrl);
-            document.getElementById('content-iframe').classList.add('hidden');
-            document.getElementById('content-iframe').style.display = 'none'; 
+            iframe.classList.add('hidden');
+            iframe.style.display = 'none'; 
             document.getElementById('custom-store-view').classList.remove('hidden');
             document.getElementById('custom-store-view').style.display = 'flex';
         } else {
-            document.getElementById('content-iframe').classList.remove('hidden');
-            document.getElementById('content-iframe').style.display = 'block'; 
+            iframe.classList.remove('hidden');
+            iframe.style.display = 'block'; 
             document.getElementById('custom-store-view').classList.add('hidden');
             document.getElementById('custom-store-view').style.display = 'none';
-            document.getElementById('content-iframe').src = iframeUrl;
+            iframe.src = iframeUrl;
         }
 
         titleEl.innerText = store.name;
@@ -917,15 +927,16 @@
     };
 
     window.goBack = () => { 
-        document.getElementById('content-iframe').src = ''; 
-        document.getElementById('content-iframe').classList.remove('hidden');
-        document.getElementById('content-iframe').style.display = 'block'; 
+        const iframe = document.getElementById('content-iframe');
+        iframe.src = ''; 
+        iframe.classList.remove('hidden');
+        iframe.classList.remove('pdf-shift-down'); // 💡 뒤로 갈 때 클래스 클리어
+        iframe.style.display = 'block'; 
         document.getElementById('custom-store-view').classList.add('hidden');
         document.getElementById('custom-store-view').style.display = 'none';
         
         document.getElementById('iframe-container').style.display = 'none'; 
         
-        // 💡 메인 페이지 스크롤 복구 및 표시
         document.body.style.position = '';
         document.body.style.top = '';
         document.body.style.width = '';
@@ -933,7 +944,7 @@
         document.body.style.overflow = 'auto'; 
         window.scrollTo(0, window.mainScrollPos);
         document.getElementById('app-shell').style.opacity = '1';
-        document.getElementById('app-shell').style.pointerEvents = 'auto'; // 💡 터치 기능 복원
+        document.getElementById('app-shell').style.pointerEvents = 'auto'; 
 
         document.getElementById('viewer-header').style.display = 'flex';
         document.getElementById('floating-back-btn').classList.add('hidden');
